@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="475.0" prefWidth="992.0" styleClass="ownerPane" stylesheets="@Main.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.BukerBetController">
+   <children>
+      <AnchorPane fx:id="mainPane" prefHeight="523.0" prefWidth="962.0" stylesheets="@Main.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <MenuBar fx:id="menuBar" prefHeight="37.0" prefWidth="992.0" stylesheets="@Main.css" AnchorPane.bottomAnchor="438.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+               <menus>
+                  <Menu fx:id="managementMenu" mnemonicParsing="false" text="Управление">
+                     <items>
+                        <MenuItem fx:id="menuItemaddMatch" mnemonicParsing="false" text="Добавить матч" />
+                     </items>
+                  </Menu>
+                  <Menu fx:id="mailingMenu" mnemonicParsing="false" text="Рассылка">
+                     <items>
+                        <MenuItem fx:id="menuItemSendInf" mnemonicParsing="false" text="Сообщить о матчах" />
+                     </items>
+                  </Menu>
+               </menus>
+            </MenuBar>
+            <TableView fx:id="tableView" layoutX="12.0" layoutY="41.0" prefHeight="412.0" prefWidth="872.0">
+               <columns>
+                  <TableColumn fx:id="idCol" prefWidth="41.0" text="№" />
+                  <TableColumn fx:id="eventCol" prefWidth="277.0" text="Событие" />
+                  <TableColumn fx:id="dateCol" prefWidth="142.0" text="Дата" />
+                  <TableColumn fx:id="timeCol" prefWidth="142.0" text="Время" />
+                  <TableColumn fx:id="resultCol" prefWidth="261.0" text="Прогноз" />
+               </columns>
+            </TableView>
+            <Button fx:id="addBut" layoutX="903.0" layoutY="54.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="61.0" text="Add" />
+            <Button fx:id="editBut" layoutX="903.0" layoutY="93.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="61.0" text="Edit" />
+            <Button fx:id="deleteBut" layoutX="903.0" layoutY="130.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="61.0" text="Delete" />
+         </children>
+      </AnchorPane>
+      <AnchorPane fx:id="inputPane" prefHeight="475.0" prefWidth="992.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <TextArea fx:id="eventArea" layoutX="135.0" layoutY="17.0" prefHeight="117.0" prefWidth="464.0" promptText="Введите престоящее событие" />
+            <TextArea fx:id="resultArea" layoutX="132.0" layoutY="253.0" prefHeight="117.0" prefWidth="464.0" promptText="Введите прогнозируемый результат матча" />
+            <Text layoutX="65.0" layoutY="79.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Событие" />
+            <Text layoutX="93.0" layoutY="311.0" strokeType="OUTSIDE" strokeWidth="0.0" />
+            <DatePicker fx:id="datePicker" layoutX="137.0" layoutY="153.0" promptText="dd/mm/yyyy" />
+            <Text layoutX="47.0" layoutY="169.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Дата матча" />
+            <Text layoutX="31.0" layoutY="217.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Время начала" />
+            <TextField fx:id="timeField" layoutX="135.0" layoutY="201.0" prefHeight="25.0" prefWidth="198.0" promptText="hh:mm" />
+            <Text layoutX="58.0" layoutY="314.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Результат" />
+            <Button fx:id="saveBtn" layoutX="136.0" layoutY="404.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="146.0" text="Сохранить" />
+            <Button fx:id="cancelBtn" layoutX="327.0" layoutY="403.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="146.0" text="Отмена" />
+         </children>
+      </AnchorPane>
+   </children>
+</AnchorPane>
