@@ -215,8 +215,6 @@ public class Connector {
         ResultSet rs;
         String sql = "SELECT * FROM matches WHERE match_id = " + editableId + " LIMIT 1";
         try {
-
-
             ps = this.db.prepareStatement(sql);
             rs = ps.executeQuery();
             if (rs.next()) {
