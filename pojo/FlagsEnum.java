@@ -2,10 +2,6 @@ package pojo;
 
 import java.io.Serializable;
 
-/**
- * Created by gandy on 27.09.14.
- *
- */
 public enum FlagsEnum implements Serializable {
 
     GET_DATA(1),

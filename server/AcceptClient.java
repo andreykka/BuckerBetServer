@@ -1,11 +1,11 @@
 package server;
 
-import javax.sound.midi.Soundbank;
+import org.apache.log4j.Logger;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by gandy on 27.09.14.
@@ -15,12 +15,13 @@ import java.util.List;
 
 class AcceptClient extends Thread {
 
-    private volatile    ServerSocket    serverSocket;
+    private volatile    ServerSocket        serverSocket;
 
-    private             ArrayList<Customer>  customers;
+    private volatile    ArrayList<Customer> customers;
 
-    private             boolean         proccessing;
-
+    private             boolean             proccessing;
+    private static final Logger LOGGER = Logger.getLogger(AcceptClient.class);
+    
     public AcceptClient(ServerSocket serverSocket) {
         super("AcceptClientThread");
         this.serverSocket   = serverSocket;
@@ -31,29 +32,26 @@ class AcceptClient extends Thread {
 
     // stop listeneng, and delete disconect Customers
     private void checkCustomersList(){
-        /*if (!this.customers.isEmpty()) {
-            this.customers.stream() .filter(cust -> !cust.isActive())
-                                    .forEach(Customer::stopListenning);
-            }*/
-            System.out.println("customersSize: " + customers.size());
-            if (this.customers.isEmpty()){
-                System.out.println("customers is empty");
-                return;
+        //System.out.println("customersSize: " + customers.size());
+        if (this.customers == null || this.customers.isEmpty()){
+            //System.out.println("customers is empty");
+            return;
+        }
+        for(int i=0; i < customers.size(); i++) {
+            if ( !customers.get(i).isActive()) {
+                customers.get(i).logOut();
+                customers.remove(i);
+                //System.out.println("Customer is not active.removed");
+                customers.trimToSize();
             }
-            for(int i=0; i < customers.size(); i++) {
-                if ( !customers.get(i).isActive()) {
-                    customers.remove(i);
-                    System.out.println("removed");
-                    customers.trimToSize();
-                }
-            }
+        }
     }
 
-    public List<Customer> getConnectedCustomers(){
+ /*   public List<Customer> getConnectedCustomers(){
         this.checkCustomersList();
         return this.customers;
     }
-
+*/
     public void stopProcessing(){
         this.proccessing = false;
         this.interrupt();
@@ -62,8 +60,11 @@ class AcceptClient extends Thread {
     @Override
     public void run() {
         while (proccessing) try {
-            System.out.println("accepting client");
-            if (serverSocket == null) System.out.println("serverSocket = null");
+            LOGGER.info("accepting client ...");
+            //System.out.println("accepting client");
+            if (serverSocket == null)
+                LOGGER.info("serverSocket = null");
+             //System.out.println("serverSocket = null");
 
             Socket clientSocket;
             if (serverSocket.isClosed()){
@@ -71,19 +72,27 @@ class AcceptClient extends Thread {
                 break;
             }
             clientSocket = serverSocket.accept();
-            System.out.println("client accepted");
+            LOGGER.info("client accepted");
+            //System.out.println("client accepted");
 
             if (clientSocket != null){
-                System.out.println("try add new client");
+                LOGGER.info("try add new client");
+                //System.out.println("try add new client");
                 this.checkCustomersList();
                 customers.add(new Customer(clientSocket));
-                System.out.println("added new client");
-            } else System.out.println("client is null!!!  in AcceptClient");
+                //System.out.println("customer sizze: " + customers.size());
+                LOGGER.info("add new client");
+                //System.out.println("added new client");
+                //System.out.println("accept new client, now are: " + customers.size() + " clients");
+                LOGGER.info("accept new client, now are: " + customers.size() + " clients");
 
-            System.out.println("accept new client, now are: " + customers.size() + " clients");
+            }
+             //System.out.println("client is null!!!  in AcceptClient");
+             LOGGER.info("client is null!!!  in AcceptClient");
+
 
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error(e);
         }
     }
 

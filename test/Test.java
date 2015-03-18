@@ -1,15 +1,9 @@
 package test;
 
-import database.Connector;
-import pojo.FlagsEnum;
-import pojo.OutputData;
-import server.Server;
-
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.*;
 
 /**
@@ -18,74 +12,37 @@ import java.util.*;
  */
 public class Test {
 
-    public static void main(String[] args) {
-        ServerSocket serverSocket = null;
-        final int PORT = 15569;
+    public static void main(String[] args) throws SocketException {
+
+        String mac = getMac();
+
+        System.out.print(mac);
+
+    }
+
+
+    public static String getMac(){
+        StringBuilder result = new StringBuilder();
+        Enumeration<NetworkInterface> en = null;
         try {
-            serverSocket = new ServerSocket(PORT);
-            System.out.println("Server started! ");
-
-            Socket socket = serverSocket.accept();
-            System.out.println("client accept");
-
-            int r = socket.getInputStream().read();
-            System.out.println("read " + r);
-            DataInputStream in = new DataInputStream(socket.getInputStream());
-            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-            int i=0;
-            while (true){
-                System.out.println("waiting data # " + i + " from client ");
-                String line = in.readUTF();
-                System.out.println("client send: " + line);
-                if (line.equals("end"))
-                    break;
-                out.writeUTF(line);
-                out.flush();
-                System.out.println("send " + line + " to client");
-                i++;
+            en = NetworkInterface.getNetworkInterfaces();
+            while (en.hasMoreElements()){
+                NetworkInterface in = en.nextElement();
+                byte[] mac = in.getHardwareAddress();
+                if (mac != null) {
+                    for (byte aMac : mac) {
+                        result.append(aMac);
+                    }
+                }
             }
-
-
-        } catch (IOException e) {
-            System.out.println("This PORT " + PORT +  " is unavailable \r\n"  + e.getMessage());
-        }
-
-
-
-
-
-/*
-        // starting server
-        Server server = Server.getInstance();
-
-        // create connection
-        Connector conn = Connector.getInstance();
-
-        // get information from DB
-        List<OutputData> outDataArr = new ArrayList<>(conn.getData());
-
-        Timer timer = new Timer();
-
-        System.out.println("timer starting");
-
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                System.out.println("try send");
-                server.sendBroadcastData(outDataArr);
-                System.out.println("timer send data");
-            }
-        }, 10*1000, 10*1000);
-
-        try {
-            Thread.sleep(10*60*1000);
-        } catch (InterruptedException e) {
+        } catch (SocketException e) {
             e.printStackTrace();
         }
 
-        timer.cancel();
-        server.stopServer();
-*/
 
+
+        return result.toString();
     }
+
+
 }

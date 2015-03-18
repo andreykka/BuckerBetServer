@@ -4,14 +4,17 @@ import java.io.Serializable;
 
 /**
  * Created by gandy on 27.09.14.
+ *
  */
-public class RegistrationData  implements Serializable{
+public class RegistrationData implements Serializable{
 
     private String name;
     private String surname;
     private String login;
     private String password;
+    private String tel;
     private String eMail;
+    private String mac;
 
     public RegistrationData() {
     }
@@ -21,7 +24,33 @@ public class RegistrationData  implements Serializable{
         this.surname    = regData.getSurname();
         this.login      = regData.getLogin();
         this.password   = regData.getPassword();
+        this.tel        = regData.getTel();
         this.eMail      = regData.getEMail();
+        this.mac        = regData.getMac();
+    }
+
+    public String getMac() {
+        return mac;
+    }
+
+    public void setMac(String mac) {
+        this.mac = mac;
+    }
+
+    public String getTel() {
+        return tel;
+    }
+
+    public void setTel(String tel) {
+        this.tel = tel;
+    }
+
+    public String geteMail() {
+        return eMail;
+    }
+
+    public void seteMail(String eMail) {
+        this.eMail = eMail;
     }
 
     public String getName() {

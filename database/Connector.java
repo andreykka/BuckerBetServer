@@ -1,14 +1,18 @@
 package database;
 
- import pojo.OutputData;
- import pojo.RegistrationData;
+import org.apache.log4j.Logger;
+import pojo.LogInData;
+import pojo.OutputData;
+import pojo.RegistrationData;
 
- import java.sql.*;
+import javax.crypto.Mac;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by gandy on 24.09.14.
+ *
  */
 public class Connector {
 
@@ -22,36 +26,59 @@ public class Connector {
 
     private Connection  db;
 
+    private static final Logger LOGGER = Logger.getLogger(Connector.class);
+
     public static Connector getInstance(){
 
         if (instance == null) {
             // initializing field by ConnectionInstanceHolder
             new ConnectionInstanceHolder();
             // now instance is initialized
-
         }
         return instance;
     }
 
     private Connector() {
-
         long timeout = System.currentTimeMillis();
         try {
             Class.forName(DRIVER_NAME);
 
             this.db = DriverManager.getConnection(URL, USER,PASSWORD);
 
-        } catch (ClassNotFoundException cnfex ){
+        } catch (ClassNotFoundException | SQLException cnfex ){
+            LOGGER.error(cnfex);
             cnfex.printStackTrace();
-        } catch (SQLException sex){
-            sex.printStackTrace();
         }
         timeout = System.currentTimeMillis() - timeout;
-        System.out.println("user:" + USER + " connected to db.. " + "timeout: " + timeout + "ms");
-
+        LOGGER.info("user:" + USER + " connected to db.. " + "timeout: " + timeout + "ms");
+        //System.out.println("user:" + USER + " connected to db.. " + "timeout: " + timeout + "ms");
     }
 
+    /*public List<LogInData> getOnlineClients() {
+        LogInData data;
+        ArrayList<LogInData> arr = new ArrayList<>();
+        ResultSet rs = null;
+        PreparedStatement ps = null;
 
+        String sql = "SELECT * FROM customers WHERE (is_online = TRUE)";
+        try {
+            ps = this.db.prepareStatement(sql);
+            rs = ps.executeQuery();
+            //System.out.println();
+
+            while (rs.next()){
+                data = new LogInData();
+                data.setLogin(rs.getString("login"));
+                data.setPass(rs.getString("pass"));
+                arr.add(data);
+            }
+        } catch (SQLException e){
+            Log.write(e);
+            //e.printStackTrace();
+        }
+        return  arr;
+    }
+*/
     public Boolean checkLoginOnExists(String login){
         ResultSet rs = null;
         PreparedStatement ps = null;
@@ -64,7 +91,8 @@ public class Connector {
             return rs.next() ;
 
         } catch (SQLException e){
-            e.printStackTrace();
+            LOGGER.error(e);
+            //e.printStackTrace();
         }
 
         return false;
@@ -84,9 +112,9 @@ public class Connector {
             return rs.next();
 
         } catch (SQLException e){
-            e.printStackTrace();
+            LOGGER.error(e);
+            //e.printStackTrace();
         }
-
         return false;
     }
 
@@ -101,39 +129,173 @@ public class Connector {
                 "'" + regData.getName()     + "', " +
                 "'" + regData.getPassword() + "', " +
                 "'" + regData.getEMail()    + "', " +
-                "'" + regData.getLogin()    + "');";
+                "'" + regData.getLogin()    + "', " + " DEFAULT, null,  null, " +
+                "'" + regData.getTel()      + "', " +
+                "'" + regData.getMac()      + "');";
         try {
             ps = this.db.prepareStatement(sql);
             ps.executeUpdate();
             result = true;
         } catch (SQLException e){
-            e.printStackTrace();
+            LOGGER.error(e);
+            //e.printStackTrace();
         }
-
         return result;
-
     }
 
-    public boolean getIsLogin(String login, String pass){
+    /**
+     * checkIsOnline check the customer are online
+     * @param logInData login and password about customer
+     * @return <code>true</code> if customer is online,
+     * <code>false</code> if not are
+     * */
+
+    public boolean checkIsOnline(LogInData logInData){
 
         ResultSet rs = null;
         PreparedStatement ps = null;
 
-        String sql = "SELECT * FROM customers WHERE (login = '" +login+ "') AND (pass = '" + pass + "')";
-
+        String sql = "SELECT * FROM customers WHERE (login = '" +logInData.getLogin() +
+                                            "') AND (pass = '"  + logInData.getPass() +
+                                            "') AND (is_online = TRUE)";
         try {
             ps = this.db.prepareStatement(sql);
             rs = ps.executeQuery();
-            System.out.println();
+            //System.out.println();
 
             // if this item contains in DB then return true else false
             return rs.next();
 
         } catch (SQLException e){
-            e.printStackTrace();
+            LOGGER.error(e);
+            //e.printStackTrace();
         }
 
         return false;
+    }
+
+    public boolean checkIsRegister(LogInData logInData){
+        ResultSet rs = null;
+        PreparedStatement ps = null;
+
+        String sql = "SELECT * FROM customers WHERE (login = '" +logInData.getLogin() + "') " +
+                                                "AND (pass = '" + logInData.getPass() +"')";
+        try {
+            ps = this.db.prepareStatement(sql);
+            rs = ps.executeQuery();
+            //System.out.println();
+
+            // if this item contains in DB then return true else false
+            return rs.next();
+
+        } catch (SQLException e){
+            LOGGER.error(e);
+            //e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    public boolean checkIsPC(LogInData user){
+
+        String sql = "SELECT * FROM customers WHERE (login= '" + user.getLogin() +"')" +
+                                            " AND  (pass= '" + user.getPass() + "')" +
+                                            " AND (mac = '" + user.getMac() +"')";
+
+            try {
+                PreparedStatement ps = this.db.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery();
+                //System.out.println();
+
+                // if this item contains in DB then return true else false
+                return rs.next();
+
+            } catch (SQLException e){
+                LOGGER.error(e);
+                //e.printStackTrace();
+            }
+
+            return false;
+    }
+
+    public boolean login(LogInData user){
+        if (!checkIsRegister(user)){
+            return false;
+        }
+        String sqlCheckDate = "SELECT * FROM customers WHERE (login= '" + user.getLogin() +"')" +
+                                                    " AND  (pass= '" + user.getPass() + "')" +
+                                                    " AND (date_over >= current_date) " +
+                                                    " AND (mac = '" + user.getMac() +"')";
+
+        String sql = "UPDATE customers SET is_online = TRUE WHERE (login= '" + user.getLogin()
+                                                        + "') AND  (pass= '" + user.getPass() + "') ";
+        try {
+            PreparedStatement ps = this.db.prepareStatement(sqlCheckDate);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()){
+                ps = this.db.prepareStatement(sql);
+                ps.executeUpdate();
+                return true;
+
+            } else {
+                return false;
+            }
+
+        } catch (SQLException e){
+            LOGGER.error(e);
+            //e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean logout(LogInData user){
+        if (!checkIsRegister(user)){
+            return false;
+        }
+        String sql = "UPDATE customers SET is_online = FALSE WHERE (login= '" + user.getLogin()
+                                                        + "') AND  (pass= '" + user.getPass() + "') ";
+        try {
+            PreparedStatement ps = this.db.prepareStatement(sql);
+            ps.executeUpdate();
+            return true;
+        } catch (SQLException e){
+            LOGGER.error(e);
+            //e.printStackTrace();
+        }
+        return false;
+    }
+
+
+    public List<OutputData> getDataToCLients(){
+        OutputData data;
+        ArrayList<OutputData> arr = new ArrayList<>();
+        ResultSet rs = null;
+        PreparedStatement ps = null;
+
+        // select the data for last week;
+        String sql = "SELECT * FROM matches where date > (current_date - interval '7 day') ORDER BY date, time";
+
+        try {
+            ps = this.db.prepareStatement(sql);
+            rs = ps.executeQuery();
+            //System.out.println();
+
+            while (rs.next()){
+                data = new OutputData();
+                data.setId(rs.getInt("match_id"));
+                data.setEvent(rs.getString("event"));
+                data.setDate(rs.getDate("date").toLocalDate());
+                data.setTime(rs.getString("time"));
+                data.setResult(rs.getString("result"));
+                arr.add(data);
+            }
+
+        } catch (SQLException e){
+            LOGGER.error(e);
+            //e.printStackTrace();
+        }
+        return  arr;
     }
 
     public List<OutputData> getData(){
@@ -142,25 +304,27 @@ public class Connector {
         ResultSet rs = null;
         PreparedStatement ps = null;
 
+        // select the data for last week;
         String sql = "SELECT * FROM matches ORDER BY date, time";
 
         try {
             ps = this.db.prepareStatement(sql);
             rs = ps.executeQuery();
-            System.out.println();
+            //System.out.println();
 
             while (rs.next()){
                 data = new OutputData();
                 data.setId(rs.getInt("match_id"));
                 data.setEvent(rs.getString("event"));
                 data.setDate(rs.getDate("date").toLocalDate());
-                data.setTime(rs.getTime("time"));
+                data.setTime(rs.getString("time"));
                 data.setResult(rs.getString("result"));
                 arr.add(data);
             }
 
         } catch (SQLException e){
-            e.printStackTrace();
+            LOGGER.error(e);
+            //e.printStackTrace();
         }
 
         return  arr;
@@ -177,7 +341,8 @@ public class Connector {
             ps = this.db.prepareStatement(sql);
             ps.executeUpdate();
         } catch (SQLException e){
-            e.printStackTrace();
+            LOGGER.error(e);
+            //e.printStackTrace();
         }
     }
 
@@ -192,7 +357,8 @@ public class Connector {
             ps = this.db.prepareStatement(sql);
             ps.executeUpdate();
         } catch (SQLException e){
-            e.printStackTrace();
+            LOGGER.error(e);
+            //e.printStackTrace();
         }
     }
 
@@ -203,7 +369,8 @@ public class Connector {
             ps = this.db.prepareStatement(sql);
             ps.executeUpdate();
         } catch (SQLException e){
-            e.printStackTrace();
+            LOGGER.error(e);
+            //e.printStackTrace();
         }
     }
 
@@ -222,19 +389,31 @@ public class Connector {
                 outputData.setId    (rs.getInt("match_id"));
                 outputData.setEvent (rs.getString("event"));
                 outputData.setDate  (rs.getDate("date").toLocalDate());
-                outputData.setTime  (rs.getTime("time"));
+                outputData.setTime  (rs.getString("time"));
                 outputData.setResult(rs.getString("result"));
             }
 
         } catch (SQLException e ){
-            e.printStackTrace();
+            LOGGER.error(e);
+            //e.printStackTrace();
         }
 
         return outputData;
     }
 
-    private static class ConnectionInstanceHolder{
+    public void close(){
+        String sql = "UPDATE customers SET is_online= FALSE WHERE is_online= TRUE";
+        try {
+            PreparedStatement ps = this.db.prepareStatement(sql);
+            ps.executeUpdate();
+        } catch (SQLException e){
+            LOGGER.error(e);
+            //e.printStackTrace();
+        }
+    }
 
+
+    private static class ConnectionInstanceHolder{
         private ConnectionInstanceHolder(){
             // initialize field owner class
             instance = new Connector();

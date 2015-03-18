@@ -4,6 +4,7 @@ import javafx.beans.property.*;
 import java.io.Serializable;
 import java.sql.Time;
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 /**
  * Created by gandy on 24.09.14.
@@ -18,20 +19,19 @@ public class OutputData implements Serializable {
 
     private ObjectProperty<LocalDate>    date;
 
-    private ObjectProperty<Time> time;
+    private ObjectProperty<LocalTime> time;
 
     private StringProperty result;
 
     public OutputData(){
-
         this.id = new SimpleIntegerProperty();
         this.event = new SimpleStringProperty();
         this.date = new SimpleObjectProperty<LocalDate>();
-        this.time = new SimpleObjectProperty<Time>();
+        this.time = new SimpleObjectProperty<LocalTime>();
         this.result = new SimpleStringProperty();
     }
 
-    public OutputData(Integer id, String event, LocalDate date, Time time, String result) {
+    public OutputData(Integer id, String event, LocalDate date, LocalTime time, String result) {
         this.id = new SimpleIntegerProperty(id);
         this.event = new SimpleStringProperty(event);
         this.date = new SimpleObjectProperty<>(date);
@@ -75,16 +75,16 @@ public class OutputData implements Serializable {
         this.date.set(date);
     }
 
-    public Time getTime() {
+    public LocalTime getTime() {
         return time.get();
     }
 
-    public ObjectProperty<Time> timeProperty() {
+    public ObjectProperty<LocalTime> timeProperty() {
         return time;
     }
 
-    public void setTime(Time time) {
-        this.time.set(time);
+    public void setTime(String time) {
+        this.time.set(LocalTime.parse(time));
     }
 
     public String getResult() {

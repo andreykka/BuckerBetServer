@@ -1,5 +1,8 @@
 package server;
 
+import org.apache.log4j.Logger;
+import pojo.LogInData;
+
 import java.net.Socket;
 
 /**
@@ -9,14 +12,25 @@ import java.net.Socket;
 
 public class Customer extends Thread{
 
-    private CustomerListener listener;
+    private volatile CustomerListener listener;
+
+    public static   LogInData   user = new LogInData("not logged ", "", "");
+
+    private static final Logger LOGGER = Logger.getLogger(Customer.class);
 
     private Socket socket;
 
     public Customer(Socket socket) {
-        super("Customer Thread");
+        super("customer thread");
         this.socket = socket;
-        this.start();
+        start();
+
+    }
+    public LogInData getInfo(){
+        if (user == null){
+           return  new LogInData("not logged ", "", "");
+        } else
+        return  user;
     }
 
     @Override
@@ -29,14 +43,16 @@ public class Customer extends Thread{
         return this.listener.getIsListenning();
     }
 
-    public void stopListenning(){
-        if ( this.listener != null && this.listener.getIsListenning()){
-            this.listener.stopListen();
-        }
+    public void logOut(){
+        this.listener.logOut();
         this.listener = null;
     }
 
     public void sendData(){
+        if (listener == null) {
+            System.out.println("listener == null");
+            LOGGER.error("listener == null");
+        }
         this.listener.sendData();
     }
 

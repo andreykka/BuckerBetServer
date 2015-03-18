@@ -7,8 +7,10 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import server.Server;
 
+
 /**
  * Created by gandy on 23.09.14.
+ *
  */
 public class BukerBet extends Application {
     @Override
@@ -20,10 +22,17 @@ public class BukerBet extends Application {
         primaryStage.setScene(scene);
         primaryStage.getScene().getStylesheets().add("application/Main.css");
         primaryStage.show();
-        primaryStage.setOnCloseRequest((WindowEvent) ->{
-            System.out.println("try to stop server");
-            Server.getInstance().stopServer();
-        });
+
+        primaryStage.setOnCloseRequest(enent ->  Server.getInstance().stopServer());
+
+       /* primaryStage.onCloseRequestProperty().setValue(event -> {
+            String message = "Вы уверенны что хотите выйти??\r\nПосле етого сервер перестанет работать";
+            if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, message)){
+                System.out.println("try to stop server");
+                Log.write("try to stop server");
+                Server.getInstance().stopServer();
+            }
+        });*/
 
     }
 

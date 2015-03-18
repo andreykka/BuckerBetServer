@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.web.*?>
+<?import java.lang.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="475.0" prefWidth="992.0" styleClass="ownerPane" stylesheets="@Main.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.BukerBetController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="454.0" prefWidth="992.0" styleClass="ownerPane" stylesheets="@Main.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.BukerBetController">
    <children>
       <AnchorPane fx:id="mainPane" prefHeight="523.0" prefWidth="962.0" stylesheets="@Main.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <MenuBar fx:id="menuBar" prefHeight="37.0" prefWidth="992.0" stylesheets="@Main.css" AnchorPane.bottomAnchor="438.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <MenuBar fx:id="menuBar" prefHeight="41.0" prefWidth="992.0" stylesheets="@Main.css" AnchorPane.bottomAnchor="413.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                <menus>
                   <Menu fx:id="managementMenu" mnemonicParsing="false" text="Управление">
                      <items>
@@ -22,10 +24,10 @@
                   </Menu>
                </menus>
             </MenuBar>
-            <TableView fx:id="tableView" layoutX="12.0" layoutY="41.0" prefHeight="412.0" prefWidth="872.0">
+            <TableView fx:id="tableView" editable="true" layoutX="12.0" layoutY="41.0" prefHeight="389.0" prefWidth="872.0">
                <columns>
-                  <TableColumn fx:id="idCol" prefWidth="41.0" text="№" />
-                  <TableColumn fx:id="eventCol" prefWidth="277.0" text="Событие" />
+                  <TableColumn fx:id="idCol" editable="true" prefWidth="41.0" text="№" />
+                  <TableColumn fx:id="eventCol" editable="true" prefWidth="277.0" text="Событие" />
                   <TableColumn fx:id="dateCol" prefWidth="142.0" text="Дата" />
                   <TableColumn fx:id="timeCol" prefWidth="142.0" text="Время" />
                   <TableColumn fx:id="resultCol" prefWidth="261.0" text="Прогноз" />
@@ -51,5 +53,6 @@
             <Button fx:id="cancelBtn" layoutX="327.0" layoutY="403.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="146.0" text="Отмена" />
          </children>
       </AnchorPane>
+      <AnchorPane prefHeight="454.0" prefWidth="992.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
    </children>
 </AnchorPane>
