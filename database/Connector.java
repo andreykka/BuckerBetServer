@@ -1,11 +1,11 @@
 package database;
 
+import config.Config;
 import org.apache.log4j.Logger;
 import pojo.LogInData;
 import pojo.OutputData;
 import pojo.RegistrationData;
 
-import javax.crypto.Mac;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +38,7 @@ public class Connector {
         return instance;
     }
 
+
     private Connector() {
         long timeout = System.currentTimeMillis();
         try {
@@ -54,6 +55,30 @@ public class Connector {
         //System.out.println("user:" + USER + " connected to db.. " + "timeout: " + timeout + "ms");
     }
 
+    //  don`t use this method never!!!! just trust me!!
+   /* public void changeAllPassAndMacOnHash(){
+        ResultSet rs = null;
+        PreparedStatement ps = null;
+
+        String sql = "SELECT * FROM customers WHERE TRUE";
+        String sqlInsert = "UPDATE customers SET pass = '%s', mac = '%s' WHERE (cust_id = '%d')";
+        try {
+            ps = this.db.prepareStatement(sql);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                int id = rs.getInt("cust_id");
+                String passHash = Config.getPasswordHash(rs.getString("pass"));
+                String macHash = Config.getMacHash(rs.getString("mac"));
+                ps = this.db.prepareStatement(String.format(sqlInsert, passHash, macHash, id));
+                ps.execute();
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+*/
     /*public List<LogInData> getOnlineClients() {
         LogInData data;
         ArrayList<LogInData> arr = new ArrayList<>();
@@ -127,11 +152,11 @@ public class Connector {
         String sql = "INSERT  INTO customers VALUES (DEFAULT , " +
                 "'" + regData.getSurname()  + "', " +
                 "'" + regData.getName()     + "', " +
-                "'" + regData.getPassword() + "', " +
+                "'" + Config.getPasswordHash(regData.getPassword()) + "', " +
                 "'" + regData.getEMail()    + "', " +
                 "'" + regData.getLogin()    + "', " + " DEFAULT, null,  null, " +
                 "'" + regData.getTel()      + "', " +
-                "'" + regData.getMac()      + "');";
+                "'" + Config.getMacHash(regData.getMac())      + "');";
         try {
             ps = this.db.prepareStatement(sql);
             ps.executeUpdate();
@@ -156,7 +181,7 @@ public class Connector {
         PreparedStatement ps = null;
 
         String sql = "SELECT * FROM customers WHERE (login = '" +logInData.getLogin() +
-                                            "') AND (pass = '"  + logInData.getPass() +
+                                            "') AND (pass = '"  + Config.getPasswordHash(logInData.getPass()) +
                                             "') AND (is_online = TRUE)";
         try {
             ps = this.db.prepareStatement(sql);
@@ -179,7 +204,7 @@ public class Connector {
         PreparedStatement ps = null;
 
         String sql = "SELECT * FROM customers WHERE (login = '" +logInData.getLogin() + "') " +
-                                                "AND (pass = '" + logInData.getPass() +"')";
+                                                "AND (pass = '" + Config.getPasswordHash(logInData.getPass()) +"')";
         try {
             ps = this.db.prepareStatement(sql);
             rs = ps.executeQuery();
@@ -199,8 +224,8 @@ public class Connector {
     public boolean checkIsPC(LogInData user){
 
         String sql = "SELECT * FROM customers WHERE (login= '" + user.getLogin() +"')" +
-                                            " AND  (pass= '" + user.getPass() + "')" +
-                                            " AND (mac = '" + user.getMac() +"')";
+                                            " AND  (pass= '" + Config.getPasswordHash(user.getPass()) + "')" +
+                                            " AND (mac = '" + Config.getMacHash(user.getMac()) +"')";
 
             try {
                 PreparedStatement ps = this.db.prepareStatement(sql);
@@ -223,12 +248,12 @@ public class Connector {
             return false;
         }
         String sqlCheckDate = "SELECT * FROM customers WHERE (login= '" + user.getLogin() +"')" +
-                                                    " AND  (pass= '" + user.getPass() + "')" +
+                                                    " AND  (pass= '" + Config.getPasswordHash(user.getPass()) + "')" +
                                                     " AND (date_over >= current_date) " +
-                                                    " AND (mac = '" + user.getMac() +"')";
+                                                    " AND (mac = '" + Config.getMacHash(user.getMac()) +"')";
 
         String sql = "UPDATE customers SET is_online = TRUE WHERE (login= '" + user.getLogin()
-                                                        + "') AND  (pass= '" + user.getPass() + "') ";
+                                                        + "') AND  (pass= '" + Config.getPasswordHash(user.getPass()) + "') ";
         try {
             PreparedStatement ps = this.db.prepareStatement(sqlCheckDate);
             ResultSet rs = ps.executeQuery();
@@ -254,7 +279,7 @@ public class Connector {
             return false;
         }
         String sql = "UPDATE customers SET is_online = FALSE WHERE (login= '" + user.getLogin()
-                                                        + "') AND  (pass= '" + user.getPass() + "') ";
+                                                        + "') AND  (pass= '" + Config.getPasswordHash(user.getPass()) + "') ";
         try {
             PreparedStatement ps = this.db.prepareStatement(sql);
             ps.executeUpdate();

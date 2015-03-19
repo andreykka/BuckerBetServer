@@ -24,13 +24,13 @@ public class CustomerListener extends Thread {
     private  volatile   ObjectOutputStream  out = null;
     private  volatile   Socket              socket;
     private             Connector           connect = Connector.getInstance();
-    private             Boolean             isListenning;
+    private             Boolean             isListening;
 
     private static final Logger LOGGER = Logger.getLogger(CustomerListener.class);
     
     public CustomerListener (Socket socket){
         this.socket = socket;
-        this.isListenning = true;
+        this.isListening = true;
         try {
             this.out    = new ObjectOutputStream(this.socket.getOutputStream());
             this.in     = new ObjectInputStream (this.socket.getInputStream());
@@ -52,12 +52,12 @@ public class CustomerListener extends Thread {
     }
 
     public void startListening(){
-        while (isListenning) {
+
+        while (isListening) {
 
             Object object;
             FlagsEnum task = null;
             try {
-
                 if (in == null ){
                     this.logOut();
                 }
@@ -91,7 +91,7 @@ public class CustomerListener extends Thread {
     public void logOut() {
         //System.out.println("TRY LOG OUT...");
         LOGGER.info("TRY LOG OUT ");
-        this.isListenning = false;
+        this.isListening = false;
         if (Customer.user != null){
             boolean f = connect.logout(Customer.user);
             System.out.println("login: " + Customer.user.getLogin());
@@ -291,9 +291,9 @@ public class CustomerListener extends Thread {
         }
     }
 
-    public Boolean getIsListenning(){
+    public Boolean getIsListening(){
 
-        return  this.isListenning &&
+        return  this.isListening &&
                 this.in != null &&
                 !this.socket.isClosed()  &&
                 this.out != null &&

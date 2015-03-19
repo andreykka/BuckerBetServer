@@ -1,36 +1,33 @@
 package server;
 
+import listenner.ListenerSupport;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by gandy on 27.09.14.
  *
  * */
 
-
-class AcceptClient extends Thread {
+class CustomerAcceptor implements Runnable{
 
     private volatile    ServerSocket        serverSocket;
-
     private volatile    ArrayList<Customer> customers;
+    private volatile    boolean             processing;
+    private static final Logger             LOGGER = Logger.getLogger(CustomerAcceptor.class);
 
-    private             boolean             proccessing;
-    private static final Logger LOGGER = Logger.getLogger(AcceptClient.class);
-    
-    public AcceptClient(ServerSocket serverSocket) {
-        super("AcceptClientThread");
+    public CustomerAcceptor(ServerSocket serverSocket) {
         this.serverSocket   = serverSocket;
         this.customers      = new ArrayList<>();
-        this.proccessing    = true;
-        this.start();
+        this.processing     = true;
     }
 
-    // stop listeneng, and delete disconect Customers
+    // stop listening, and delete disconnect Customers
     private void checkCustomersList(){
         //System.out.println("customersSize: " + customers.size());
         if (this.customers == null || this.customers.isEmpty()){
@@ -47,23 +44,19 @@ class AcceptClient extends Thread {
         }
     }
 
- /*   public List<Customer> getConnectedCustomers(){
-        this.checkCustomersList();
-        return this.customers;
-    }
-*/
     public void stopProcessing(){
-        this.proccessing = false;
-        this.interrupt();
+        this.processing = false;
     }
 
     @Override
     public void run() {
-        while (proccessing) try {
+        while (processing) try {
             LOGGER.info("accepting client ...");
             //System.out.println("accepting client");
-            if (serverSocket == null)
+            if (serverSocket == null) {
                 LOGGER.info("serverSocket = null");
+                break;
+            }
              //System.out.println("serverSocket = null");
 
             Socket clientSocket;
@@ -71,6 +64,8 @@ class AcceptClient extends Thread {
                 this.stopProcessing();
                 break;
             }
+
+            // the thread in this place sleep, and still wait for new customer
             clientSocket = serverSocket.accept();
             LOGGER.info("client accepted");
             //System.out.println("client accepted");
@@ -89,7 +84,6 @@ class AcceptClient extends Thread {
             }
              //System.out.println("client is null!!!  in AcceptClient");
              LOGGER.info("client is null!!!  in AcceptClient");
-
 
         } catch (IOException e) {
             LOGGER.error(e);

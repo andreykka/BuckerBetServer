@@ -11,8 +11,6 @@ public class LogInData implements Serializable {
     private String pass;
     private String mac;
 
-
-
     public LogInData (LogInData obj){
         this.setLogin(obj.getLogin());
         this.setPass(obj.getPass());

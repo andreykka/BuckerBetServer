@@ -12,11 +12,10 @@ import java.net.Socket;
 
 public class Customer extends Thread{
 
+    private static final    Logger      LOGGER  = Logger.getLogger(Customer.class);
+    public  static          LogInData   user    = new LogInData("not logged ", "", "");
+
     private volatile CustomerListener listener;
-
-    public static   LogInData   user = new LogInData("not logged ", "", "");
-
-    private static final Logger LOGGER = Logger.getLogger(Customer.class);
 
     private Socket socket;
 
@@ -24,8 +23,8 @@ public class Customer extends Thread{
         super("customer thread");
         this.socket = socket;
         start();
-
     }
+
     public LogInData getInfo(){
         if (user == null){
            return  new LogInData("not logged ", "", "");
@@ -40,7 +39,7 @@ public class Customer extends Thread{
     }
 
     public boolean isActive(){
-        return this.listener.getIsListenning();
+        return this.listener.getIsListening();
     }
 
     public void logOut(){

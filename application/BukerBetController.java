@@ -17,6 +17,7 @@ import pojo.LogInData;
 import pojo.OutputData;
 import pojo.TimeConverter;
 import server.Server;
+import server.ServerService;
 
 import javax.swing.*;
 import javax.swing.text.html.*;
@@ -29,6 +30,7 @@ import java.util.Timer;
 
 /**
  * Created by gandy on 23.09.14.
+ *
  */
 public class BukerBetController implements Initializable{
 
@@ -65,7 +67,8 @@ public class BukerBetController implements Initializable{
     @FXML private ListView<LogInData> customerListView;
 
     private Connector           connector   = Connector.getInstance();
-    private Server              server      = Server.getInstance();
+//    private Server              server      = Server.getInstance();
+    private ServerService       serverService = ServerService.getInstance();
     private List<OutputData>    outputData  = new ArrayList<>();
 
     private Boolean isEdit = false;
@@ -105,6 +108,8 @@ public class BukerBetController implements Initializable{
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+
+        serverService.runServer();
 
         menuItemSendInf.setOnAction(action -> {
 
@@ -168,8 +173,6 @@ public class BukerBetController implements Initializable{
             this.connector.removeItem(deletingData);
             refreshTableContent();
         });
-
-
 
     }
 

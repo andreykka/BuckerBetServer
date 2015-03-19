@@ -1,5 +1,7 @@
 package test;
 
+import database.Connector;
+
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -15,7 +17,6 @@ public class Test {
     public static void main(String[] args) throws SocketException {
 
         String mac = getMac();
-
         System.out.print(mac);
 
     }
@@ -43,6 +44,7 @@ public class Test {
 
         return result.toString();
     }
+
 
 
 }
