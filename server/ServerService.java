@@ -42,6 +42,7 @@ public class ServerService {
             e.printStackTrace();
         }
 
+        // run accepting client
         acceptor = new CustomerAcceptor(server.getServerSocket());
         executorService.submit(acceptor);
 

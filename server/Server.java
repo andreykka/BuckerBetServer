@@ -46,7 +46,6 @@ public class Server implements Runnable{
                 LOGGER.error(e);
             }
         }
-
         LOGGER.info("Server is stopped...");
     }
 

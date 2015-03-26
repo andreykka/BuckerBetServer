@@ -21,7 +21,6 @@ public class Test {
 
     }
 
-
     public static String getMac(){
         StringBuilder result = new StringBuilder();
         Enumeration<NetworkInterface> en = null;
@@ -40,11 +39,7 @@ public class Test {
             e.printStackTrace();
         }
 
-
-
         return result.toString();
     }
-
-
 
 }
