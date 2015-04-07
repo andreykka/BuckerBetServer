@@ -38,7 +38,7 @@ public class Server implements Runnable{
     }
 
     public void stopServer(){
-        if (serverSocket != null && !serverSocket.isClosed()) {
+        if (serverSocket != null) {
             try {
                 this.serverSocket.close();
                 LOGGER.info("Server shutdown successfully");
@@ -46,7 +46,7 @@ public class Server implements Runnable{
                 LOGGER.error(e);
             }
         }
-        LOGGER.info("Server is stopped...");
+        LOGGER.info("Server stopped...");
     }
 
     public ServerSocket getServerSocket() {

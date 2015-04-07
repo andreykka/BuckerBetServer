@@ -1,6 +1,5 @@
 package server;
 
-import listenner.ListenerSupport;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
@@ -8,86 +7,117 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by gandy on 27.09.14.
  *
  * */
 
-class CustomerAcceptor implements Runnable{
+class CustomerAcceptor implements Runnable {
 
-    private volatile    ServerSocket        serverSocket;
-    private volatile    ArrayList<Customer> customers;
-    private volatile    boolean             processing;
-    private static final Logger             LOGGER = Logger.getLogger(CustomerAcceptor.class);
+    private class LocalExecutorCustomerAcceptor implements Runnable {
 
-    public CustomerAcceptor(ServerSocket serverSocket) {
-        this.serverSocket   = serverSocket;
-        this.customers      = new ArrayList<>();
-        this.processing     = true;
-    }
-
-    // stop listening, and delete disconnect Customers
-    private void checkCustomersList(){
-        //System.out.println("customersSize: " + customers.size());
-        if (this.customers == null || this.customers.isEmpty()){
-            //System.out.println("customers is empty");
-            return;
+        // stop listening, and delete disconnected Customers
+        private void checkCustomersList(){
+            if (customerServices == null || customerServices.isEmpty()){
+                //System.out.println("customers is empty");
+                return;
+            }
+            for(int i = 0; i < customerServices.size(); i++) {
+                CustomerService current = customerServices.get(i);
+                if (!current.checkConnection()) {
+                    current.logOut();
+                    customerServices.remove(i);
+                    customerServices.trimToSize();
+                }
+            }
         }
-        for(int i=0; i < customers.size(); i++) {
-            if ( !customers.get(i).isActive()) {
-                customers.get(i).logOut();
-                customers.remove(i);
-                //System.out.println("Customer is not active.removed");
-                customers.trimToSize();
+
+        @Override
+        public void run() {
+            while (processing) try {
+                LOGGER.info("accepting client ...");
+                if (serverSocket == null || serverSocket.isClosed()) {
+                    LOGGER.info("serverSocket = null or closed");
+                    stopProcessing();
+                    break;
+                }
+
+                Socket clientSocket;
+                Socket connectionSocket;
+
+                // the thread in this place sleep, and still wait for new customer
+                // connect the socket for transport data
+                clientSocket = serverSocket.accept();
+                LOGGER.info("accept clientSocket");
+                // connect socket for checking connection, and broadcast sending
+                connectionSocket = serverSocket.accept();
+
+                LOGGER.info("accept connectionSocket");
+
+                if (clientSocket == null || connectionSocket == null) {
+                    LOGGER.info("client is null!!!  in AcceptClient");
+                    continue;
+                }
+                LOGGER.info("try add new client");
+
+                checkCustomersList();
+                CustomerService customerService = new CustomerService(clientSocket, connectionSocket);
+                customerServices.add(customerService);
+                // alert all listeners about customer connect
+
+                // start the customer service listener
+                executorService.submit(customerService);
+
+                LOGGER.info("add new client");
+            } catch (IOException e) {
+                LOGGER.error(e);
+//                stopProcessing();
             }
         }
     }
 
+    private ExecutorService executorService = Executors.newCachedThreadPool();
+
+    private volatile    ServerSocket    serverSocket;
+    private ArrayList<CustomerService>  customerServices;
+    private volatile    boolean         processing;
+    private LocalExecutorCustomerAcceptor executorCustomerAcceptor = new LocalExecutorCustomerAcceptor();
+    private Thread thread;
+
+    private static final Logger         LOGGER = Logger.getLogger(CustomerAcceptor.class);
+
+    public CustomerAcceptor(ServerSocket serverSocket) {
+        this.serverSocket       = serverSocket;
+        this.processing         = true;
+        this.customerServices   = new ArrayList<>();
+        this.thread             = new Thread(executorCustomerAcceptor);
+    }
+
+    // may produce problem with memory
+    public List<CustomerService> getActiveCustomers(){
+        return this.customerServices;
+    }
+
     public void stopProcessing(){
-        this.processing = false;
+        // stop all the Customer Services
+        executorService.shutdown();
+        executorService.shutdownNow();
+        executorCustomerAcceptor.checkCustomersList();
+
+        customerServices.forEach(server.CustomerService::logOut);
+
+        if (processing)
+            processing = false;
+        if (thread != null)
+            thread.interrupt();
     }
 
     @Override
     public void run() {
-        while (processing) try {
-            LOGGER.info("accepting client ...");
-            //System.out.println("accepting client");
-            if (serverSocket == null) {
-                LOGGER.info("serverSocket = null");
-                break;
-            }
-             //System.out.println("serverSocket = null");
-
-            Socket clientSocket;
-            if (serverSocket.isClosed()){
-                this.stopProcessing();
-                break;
-            }
-
-            // the thread in this place sleep, and still wait for new customer
-            clientSocket = serverSocket.accept();
-            LOGGER.info("client accepted");
-            //System.out.println("client accepted");
-
-            if (clientSocket != null){
-                LOGGER.info("try add new client");
-                //System.out.println("try add new client");
-                this.checkCustomersList();
-                customers.add(new Customer(clientSocket));
-                //System.out.println("customer sizze: " + customers.size());
-                LOGGER.info("add new client");
-                //System.out.println("added new client");
-                //System.out.println("accept new client, now are: " + customers.size() + " clients");
-                LOGGER.info("accept new client, now are: " + customers.size() + " clients");
-
-            }
-             //System.out.println("client is null!!!  in AcceptClient");
-             LOGGER.info("client is null!!!  in AcceptClient");
-
-        } catch (IOException e) {
-            LOGGER.error(e);
-        }
+        thread.start();
     }
 
 }

@@ -2,7 +2,6 @@ package pojo;
 
 import javafx.beans.property.*;
 import java.io.Serializable;
-import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -14,13 +13,9 @@ import java.time.LocalTime;
 public class OutputData implements Serializable {
 
     private IntegerProperty id;
-
     private StringProperty  event;
-
     private ObjectProperty<LocalDate>    date;
-
     private ObjectProperty<LocalTime> time;
-
     private StringProperty result;
 
     public OutputData(){

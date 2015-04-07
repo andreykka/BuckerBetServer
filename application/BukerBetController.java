@@ -1,32 +1,25 @@
 package application;
 
 import database.Connector;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.control.ListView;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
-import javafx.util.Callback;
+import listenner.ICustomerListener;
 import org.apache.log4j.Logger;
-import pojo.DateConverter;
-import pojo.LogInData;
-import pojo.OutputData;
-import pojo.TimeConverter;
-import server.Server;
+import pojo.*;
+import server.CustomerService;
 import server.ServerService;
 
 import javax.swing.*;
-import javax.swing.text.html.*;
 import java.net.URL;
-import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
-import java.util.Timer;
 
 /**
  * Created by gandy on 23.09.14.
@@ -34,8 +27,40 @@ import java.util.Timer;
  */
 public class BukerBetController implements Initializable{
 
+    private class InnerCustomerListenner implements ICustomerListener {
+
+        private void sortColumn(){
+
+        }
+
+        @Override
+        public void customerLogin(Customer cust) {
+            for(Customer c: customerTableView.getItems()) {
+                if (c.equals(cust)) {
+                    c.setStatus(true);
+                    customerTableView.getColumns().get(customerTableView.getColumns().size() - 1).setSortable(true);
+                    return;
+                }
+            }
+            cust.setStatus(true);
+            customerTableView.getItems().add(cust);
+        }
+
+        @Override
+        public void customerLogout(Customer cust) {
+            for(Customer c: customerTableView.getItems()) {
+                if (c.equals(cust)) {
+                    c.setStatus(false);
+                    customerTableView.getColumns().get(customerTableView.getColumns().size() - 1).setSortable(true);
+                    return;
+                }
+            }
+        }
+    }
+
     @FXML private AnchorPane    mainPane;
     @FXML private AnchorPane    inputPane;
+    @FXML private AnchorPane    customerPane;
 
     @FXML private TextArea      eventArea;
     @FXML private DatePicker    datePicker;
@@ -53,6 +78,17 @@ public class BukerBetController implements Initializable{
     @FXML private TableColumn<Object, LocalTime>        timeCol;
     @FXML private TableColumn<Object, String>           resultCol;
 
+    @FXML private TableView<Customer>                 customerTableView;
+
+    @FXML private TableColumn<Customer, Integer>      custIdCol;
+    @FXML private TableColumn<Customer, String>       custSurnameCol;
+    @FXML private TableColumn<Customer, String>       custNameCol;
+    @FXML private TableColumn<Customer, String>       custLoginCol;
+    @FXML private TableColumn<Customer, String>       custEmailCol;
+    @FXML private TableColumn<Customer, String>       custTelCol;
+    @FXML private TableColumn<Customer, Boolean>      custStatusCol;
+
+
     @FXML private Button addBut;
     @FXML private Button editBut;
     @FXML private Button deleteBut;
@@ -63,8 +99,7 @@ public class BukerBetController implements Initializable{
     @FXML private MenuItem      menuItemaddMatch;   // add new match
     @FXML private MenuItem      menuItemSendInf;    // send information into clients
 
-
-    @FXML private ListView<LogInData> customerListView;
+    private Logger logger = Logger.getLogger(getClass());
 
     private Connector           connector   = Connector.getInstance();
 //    private Server              server      = Server.getInstance();
@@ -73,6 +108,7 @@ public class BukerBetController implements Initializable{
 
     private Boolean isEdit = false;
     private int     editableId;
+
 
     private void refreshTableContent(){
         this.tableView.getItems().clear();
@@ -109,11 +145,45 @@ public class BukerBetController implements Initializable{
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
+        // register listener in CustomerService class
+        CustomerService.addListener(new InnerCustomerListenner());
+
+        // start the server
         serverService.runServer();
 
         menuItemSendInf.setOnAction(action -> {
-
+            // broadcast sending information
+            serverService.sendBroadcastData();
         });
+
+        this.custIdCol.setCellValueFactory(new PropertyValueFactory<>("id"));
+        this.custSurnameCol.setCellValueFactory(new PropertyValueFactory<>("surname"));
+        this.custNameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
+        this.custLoginCol.setCellValueFactory(new PropertyValueFactory<>("login"));
+        this.custEmailCol.setCellValueFactory(new PropertyValueFactory<>("email"));
+        this.custTelCol.setCellValueFactory(new PropertyValueFactory<>("tel"));
+        this.custStatusCol.setCellValueFactory(new PropertyValueFactory<>("status"));
+
+        // if status online paint text in green color else red
+        this.custStatusCol.setCellFactory(param -> new TableCell<Customer, Boolean>(){
+            @Override
+            protected void updateItem(Boolean item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item != null) {
+                    setAlignment(Pos.CENTER);
+                    if (item) {
+                        setText("online");
+                        setStyle("-fx-text-fill: green; -fx-font-weight: bold");
+                    } else {
+                        setText("offline");
+                        setStyle("-fx-text-fill: red;");
+                    }
+                }
+            }
+        });
+
+        this.customerTableView.getItems().addAll(connector.getAllCustomers());
+
         this.tableView.setEditable(true);
 
         this.idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -125,7 +195,6 @@ public class BukerBetController implements Initializable{
         this.dateCol.setCellFactory(param -> new ComboBoxTableCell<Object, LocalDate>(new DateConverter()));
         this.timeCol.setCellFactory(param -> new ComboBoxTableCell<Object, LocalTime>(new TimeConverter()));
         this.datePicker.setConverter(new DateConverter());
-
 
         refreshTableContent();
 

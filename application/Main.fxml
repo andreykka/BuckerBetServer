@@ -1,44 +1,96 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.web.*?>
+<?import javafx.geometry.*?>
 <?import java.lang.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="454.0" prefWidth="992.0" styleClass="ownerPane" stylesheets="@Main.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.BukerBetController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" styleClass="ownerPane" stylesheets="@Main.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.BukerBetController">
    <children>
-      <AnchorPane fx:id="mainPane" prefHeight="523.0" prefWidth="962.0" stylesheets="@Main.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <AnchorPane fx:id="mainPane" stylesheets="@Main.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <MenuBar fx:id="menuBar" prefHeight="41.0" prefWidth="992.0" stylesheets="@Main.css" AnchorPane.bottomAnchor="413.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-               <menus>
-                  <Menu fx:id="managementMenu" mnemonicParsing="false" text="Управление">
-                     <items>
-                        <MenuItem fx:id="menuItemaddMatch" mnemonicParsing="false" text="Добавить матч" />
-                     </items>
-                  </Menu>
-                  <Menu fx:id="mailingMenu" mnemonicParsing="false" text="Рассылка">
-                     <items>
-                        <MenuItem fx:id="menuItemSendInf" mnemonicParsing="false" text="Сообщить о матчах" />
-                     </items>
-                  </Menu>
-               </menus>
-            </MenuBar>
-            <TableView fx:id="tableView" editable="true" layoutX="12.0" layoutY="41.0" prefHeight="389.0" prefWidth="872.0">
-               <columns>
-                  <TableColumn fx:id="idCol" editable="true" prefWidth="41.0" text="№" />
-                  <TableColumn fx:id="eventCol" editable="true" prefWidth="277.0" text="Событие" />
-                  <TableColumn fx:id="dateCol" prefWidth="142.0" text="Дата" />
-                  <TableColumn fx:id="timeCol" prefWidth="142.0" text="Время" />
-                  <TableColumn fx:id="resultCol" prefWidth="261.0" text="Прогноз" />
-               </columns>
-            </TableView>
-            <Button fx:id="addBut" layoutX="903.0" layoutY="54.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="61.0" text="Add" />
-            <Button fx:id="editBut" layoutX="903.0" layoutY="93.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="61.0" text="Edit" />
-            <Button fx:id="deleteBut" layoutX="903.0" layoutY="130.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="61.0" text="Delete" />
+            <VBox alignment="TOP_CENTER" prefHeight="464.0" prefWidth="993.0" spacing="2.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+               <children>
+                  <MenuBar fx:id="menuBar" stylesheets="@Main.css" AnchorPane.bottomAnchor="413.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <menus>
+                        <Menu fx:id="managementMenu" mnemonicParsing="false" text="Управление">
+                           <items>
+                              <MenuItem fx:id="menuItemaddMatch" mnemonicParsing="false" text="Добавить матч" />
+                           </items>
+                        </Menu>
+                        <Menu fx:id="mailingMenu" mnemonicParsing="false" text="Рассылка">
+                           <items>
+                              <MenuItem fx:id="menuItemSendInf" mnemonicParsing="false" text="Сообщить о матчах" />
+                           </items>
+                        </Menu>
+                     </menus>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </MenuBar>
+                  <TabPane layoutY="42.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="42.0" VBox.vgrow="ALWAYS">
+                    <tabs>
+                      <Tab text="Матчи">
+                        <content>
+                          <AnchorPane minHeight="0.0" minWidth="0.0">
+                                 <children>
+                                    <HBox alignment="TOP_RIGHT" nodeOrientation="LEFT_TO_RIGHT" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                       <children>
+                                          <TableView fx:id="tableView" editable="true" fixedCellSize="0.0" HBox.hgrow="ALWAYS">
+                                             <columns>
+                                                <TableColumn fx:id="idCol" editable="true" prefWidth="41.0" text="№" />
+                                                <TableColumn fx:id="eventCol" editable="true" prefWidth="277.0" text="Событие" />
+                                                <TableColumn fx:id="dateCol" prefWidth="142.0" text="Дата" />
+                                                <TableColumn fx:id="timeCol" prefWidth="142.0" text="Время" />
+                                                <TableColumn fx:id="resultCol" prefWidth="261.0" text="Прогноз" />
+                                             </columns>
+                                          </TableView>
+                                          <VBox alignment="CENTER" fillWidth="false" maxHeight="100.0" maxWidth="100.0" minHeight="100.0" minWidth="100.0" prefHeight="100.0" prefWidth="100.0" spacing="10.0" HBox.hgrow="ALWAYS">
+                                             <children>
+                                                <Button fx:id="addBut" mnemonicParsing="false" prefHeight="30.0" prefWidth="80.0" text="Add" />
+                                                <Button fx:id="editBut" mnemonicParsing="false" prefHeight="30.0" prefWidth="80.0" text="Edit" />
+                                                <Button fx:id="deleteBut" mnemonicParsing="false" prefHeight="30.0" prefWidth="80.0" text="Delete" />
+                                             </children>
+                                             <padding>
+                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                             </padding>
+                                          </VBox>
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </AnchorPane>
+                        </content>
+                      </Tab>
+                      <Tab text="Пользователи">
+                        <content>
+                          <AnchorPane minHeight="0.0" minWidth="0.0">
+                                 <children>
+                                    <TableView fx:id="customerTableView" editable="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                       <columns>
+                                          <TableColumn fx:id="custIdCol" editable="true" maxWidth="50.0" minWidth="20.0" prefWidth="40.0" text="№" />
+                                          <TableColumn fx:id="custSurnameCol" editable="true" maxWidth="300.0" minWidth="100.0" prefWidth="150.0" text="Фамилия" />
+                                          <TableColumn fx:id="custNameCol" maxWidth="300.0" minWidth="100.0" prefWidth="180.0" text="Имя" />
+                                          <TableColumn fx:id="custLoginCol" maxWidth="300.0" prefWidth="170.0" text="Логин" />
+                                          <TableColumn fx:id="custEmailCol" maxWidth="300.0" prefWidth="200.0" text="Email" />
+                                          <TableColumn fx:id="custTelCol" maxWidth="250.0" prefWidth="140.0" text="Телефон" />
+                                          <TableColumn fx:id="custStatusCol" maxWidth="250.0" minWidth="60.0" prefWidth="100.0" text="Статус" />
+                                       </columns>
+                                    </TableView>
+                                 </children>
+                              </AnchorPane>
+                        </content>
+                      </Tab>
+                    </tabs>
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </VBox.margin>
+                  </TabPane>
+               </children>
+            </VBox>
          </children>
       </AnchorPane>
-      <AnchorPane fx:id="inputPane" prefHeight="475.0" prefWidth="992.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <AnchorPane fx:id="inputPane" prefHeight="454.0" prefWidth="992.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
             <TextArea fx:id="eventArea" layoutX="135.0" layoutY="17.0" prefHeight="117.0" prefWidth="464.0" promptText="Введите престоящее событие" />
             <TextArea fx:id="resultArea" layoutX="132.0" layoutY="253.0" prefHeight="117.0" prefWidth="464.0" promptText="Введите прогнозируемый результат матча" />
@@ -53,6 +105,5 @@
             <Button fx:id="cancelBtn" layoutX="327.0" layoutY="403.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="146.0" text="Отмена" />
          </children>
       </AnchorPane>
-      <AnchorPane prefHeight="454.0" prefWidth="992.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
    </children>
 </AnchorPane>

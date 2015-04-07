@@ -2,9 +2,11 @@ package database;
 
 import config.Config;
 import org.apache.log4j.Logger;
+import pojo.Customer;
 import pojo.LogInData;
 import pojo.OutputData;
 import pojo.RegistrationData;
+import sun.rmi.runtime.Log;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -168,6 +170,59 @@ public class Connector {
         return result;
     }
 
+    public List<Customer> getAllCustomers() {
+        List<Customer> list = new ArrayList<>();
+
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        Customer customer = null;
+
+        String query = "select * from customers c WHERE TRUE ORDER BY c.surname ASC";
+
+        try {
+            ps = db.prepareStatement(query);
+            rs = ps.executeQuery();
+            while (rs.next()){
+                customer = new Customer(rs.getString("name"),
+                        rs.getString("surname"),
+                        rs.getString("login"),
+                        rs.getString("tel"),
+                        rs.getString("e_mail"),
+                        rs.getBoolean("is_online"));
+                list.add(customer);
+            }
+        } catch (SQLException e) {
+            LOGGER.error(e);
+        }
+        return list;
+    }
+
+    public Customer getCustomerByLoginData(LogInData inData) {
+        Customer customer = null;
+
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        String query = "select * from customers WHERE (login = '%s') AND (pass = '%s')";
+
+        try {
+            ps = db.prepareStatement(String.format(query, inData.getLogin(), Config.getPasswordHash(inData.getPass())));
+            rs = ps.executeQuery();
+            while (rs.next()){
+                customer = new Customer(rs.getString("name"),
+                        rs.getString("surname"),
+                        rs.getString("login"),
+                        rs.getString("tel"),
+                        rs.getString("e_mail"),
+                        rs.getBoolean("is_online"));
+            }
+        } catch (SQLException e) {
+            LOGGER.error(e);
+        }
+
+        return customer;
+    }
+
     /**
      * checkIsOnline check the customer are online
      * @param logInData login and password about customer
@@ -274,6 +329,28 @@ public class Connector {
         return false;
     }
 
+    public boolean logout(Customer cust){
+      /*
+        if (!checkIsRegister(cust)){
+            return false;
+        }
+        */
+        String sql = "UPDATE customers SET is_online = FALSE WHERE (login= '" + cust.getLogin()
+                + "') AND  (name = '" + cust.getName() + "') " +
+                "AND (surname = '" + cust.getSurname() + "') AND " +
+                "(tel = '" + cust.getTel() + "')";
+        try {
+            PreparedStatement ps = this.db.prepareStatement(sql);
+            ps.executeUpdate();
+            return true;
+        } catch (SQLException e){
+            LOGGER.error(e);
+            //e.printStackTrace();
+        }
+        return false;
+    }
+
+
     public boolean logout(LogInData user){
         if (!checkIsRegister(user)){
             return false;
@@ -292,7 +369,7 @@ public class Connector {
     }
 
 
-    public List<OutputData> getDataToCLients(){
+    public List<OutputData> getDataToClients(){
         OutputData data;
         ArrayList<OutputData> arr = new ArrayList<>();
         ResultSet rs = null;

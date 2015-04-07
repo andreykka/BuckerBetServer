@@ -4,6 +4,6 @@
 
 .menu-bar{
 	-fx-background-color: linear-gradient(from 25% 25% to 100% 100%, rgba(123, 200, 136, 0.5), rgba(35, 98, 50, 0.9));
-	-fx-padding: 2px 0 2px 10px;
-	-fx-pref-height: 32pt;
+	/*-fx-padding: 2px 0 2px 10px;*/
+	/*-fx-pref-height: 32pt;*/
 }
