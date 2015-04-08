@@ -1,6 +1,8 @@
 package server;
 
+import config.TaskTimerScheduler;
 import database.Connector;
+import exceptions.TaskNotExecuteCorrectException;
 import listenner.ICustomerListener;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
@@ -12,8 +14,6 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
 * Created by gandy on 27.09.14.
@@ -120,7 +120,6 @@ public class CustomerService implements Runnable {
                 this.lout.close();
             if (connectionSocket != null)
                 this.connectionSocket.close();
-
         } catch (IOException e) {
             LOGGER.error(e);
         }
@@ -233,7 +232,7 @@ public class CustomerService implements Runnable {
 
     public void sendBroadcastData(){
         try /*(ObjectOutputStream lout = new ObjectOutputStream(connectionSocket.getOutputStream()))*/{
-            if (! this.checkConnection())
+            if (!this.checkConnection())
                 return;
             lout.writeObject(FlagsEnum.GET_DATA);
             lout.flush();
@@ -328,38 +327,33 @@ public class CustomerService implements Runnable {
     // return true if connection are success
     public boolean checkConnection(){
         LOGGER.info("checking connection");
-//        Timer t = new Timer();
 
-        try /*(ObjectOutputStream lout = new ObjectOutputStream(connectionSocket.getOutputStream());
-             ObjectInputStream   lin = new ObjectInputStream(connectionSocket.getInputStream())) */{
-
+        try {
             if (! getIsListening())
                 return false;
             LOGGER.info("write CHECK_CONNECTION");
             lout.writeObject(FlagsEnum.CHECK_CONNECTION);
+            lout.flush();
 
             // якщо не можливо відправити чи отримати дані від клієнта
             // генеруємо помилку
-            /*
-            t.schedule(new TimerTask() {
-                @Override
-                public void run(){
-                    if (b)
-                        throw new Error("Client already disconnected from server");
+            boolean executionResult = new TaskTimerScheduler(() -> {
+                try {
+                    Object obj = lin.readObject();
+                    if (obj == null || !(obj instanceof Boolean))
+                        throw new TaskNotExecuteCorrectException();
+                } catch (IOException | ClassNotFoundException e) {
+                    LOGGER.error(e);
                 }
-            }, 300);
-*/
-            Object obj = lin.readObject();
-            LOGGER.info("read info success");
+                LOGGER.info("read info success");
+            }, 300).executeTask();
 
-            if (obj == null || !(obj instanceof Boolean))
-                return false;
-        } catch (IOException | ClassNotFoundException | Error e) {
+            return executionResult;
+
+        } catch (IOException e) {
             LOGGER.error(e);
             return false;
         }
-
-        return true;
     }
 
 

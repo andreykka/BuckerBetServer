@@ -1,6 +1,7 @@
 package server;
 
 import org.apache.log4j.Logger;
+import pojo.Customer;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -25,14 +26,22 @@ class CustomerAcceptor implements Runnable {
                 //System.out.println("customers is empty");
                 return;
             }
+            System.out.println("CustomersCount before: " + customerServices.size());
+            CustomerService custToDelete[] = new CustomerService[customerServices.size()];
+            int indexCurr = 0;
             for(int i = 0; i < customerServices.size(); i++) {
                 CustomerService current = customerServices.get(i);
                 if (!current.checkConnection()) {
                     current.logOut();
-                    customerServices.remove(i);
-                    customerServices.trimToSize();
+                    custToDelete[indexCurr++] = current;
                 }
             }
+            for(CustomerService c: custToDelete){
+                customerServices.remove(c);
+            }
+
+            customerServices.trimToSize();
+            System.out.println("CustomersCount after: " + customerServices.size());
         }
 
         @Override
