@@ -6,19 +6,21 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
+import javafx.stage.Stage;
 import listener.ICustomerListener;
 import org.apache.log4j.Logger;
 import pojo.*;
-import server.CustomerService;
-import server.ServerService;
+import server.*;
 
+import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -32,14 +34,9 @@ import java.util.regex.Pattern;
  */
 public class BukerBetController implements Initializable{
 
-    private final double INPUT_PANE_WIDTH = 625.0;
-    private final double MAIN_PANE_WIDTH = 995.0;
+    public static final String DIALOG_FORM_RESOURCE = "view/MatchDialog.fxml";
 
     private class InnerCustomerListener implements ICustomerListener {
-
-        private void sortColumn(){
-
-        }
 
         @Override
         public void customerLogin(Customer cust) {
@@ -66,20 +63,9 @@ public class BukerBetController implements Initializable{
         }
     }
 
-    @FXML private AnchorPane    mainPane;
-    @FXML private AnchorPane    inputPane;
-
-    @FXML private TextArea      eventArea;
-    @FXML private DatePicker    datePicker;
-    @FXML private TextField     timeField;
-    @FXML private TextArea      resultArea;
-
-    @FXML private Button        saveBtn;
-    @FXML private Button        cancelBtn;
-
     @FXML private TabPane tabPane;
 
-    @FXML private TableView<OutputData>                 tableView;
+    @FXML private TableView<OutputData> matchTableView;
 
     @FXML private TableColumn<OutputData, Integer>      idCol;
     @FXML private TableColumn<OutputData, String>       eventCol;
@@ -108,10 +94,7 @@ public class BukerBetController implements Initializable{
     @FXML private ComboBox<String>  filterComboBox;
     @FXML private TextField         filterTextField;
 
-    @FXML private MenuBar       menuBar;
-    @FXML private Menu          managementMenu;
-    @FXML private Menu          mailingMenu;
-    @FXML private MenuItem      menuItemaddMatch;   // add new match
+    @FXML private MenuItem      menuItemAddMatch;   // add new match
     @FXML private MenuItem      menuItemSendInf;    // send information into clients
 
     private ObservableList<Customer> sourceCustomerItems;
@@ -122,40 +105,42 @@ public class BukerBetController implements Initializable{
     private Connector           connector   = Connector.getInstance();
     private ServerService       serverService = ServerService.getInstance();
 
-    private Boolean isEdit = false;
-    private int     editableId;
-
     private void refreshTableContent(){
-        this.tableView.getItems().clear();
-        this.tableView.getItems().addAll(this.connector.getData());
+        this.matchTableView.getItems().clear();
+        this.matchTableView.getItems().addAll(this.connector.getData());
     }
 
-    private void clearInputFields(){
-        this.eventArea.clear();
-        this.datePicker.getEditor().clear();
-        this.timeField.clear();
-        this.resultArea.clear();
-    }
+    /**
+     * Show form input match data
+     * @param  data data to editing or null
+     * if data == null will add new data
+     * else will editing current data
+     * */
+    private boolean showInputForm(OutputData data){
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource(DIALOG_FORM_RESOURCE));
+            AnchorPane page = loader.load();
 
-    private void showInputForm(){
-        this.mainPane.setVisible(false);
-//        clearInputFields();
-        this.inputPane.setVisible(true);
-    }
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle((data != null ? "Редактировать" : "Добавить") + " матч" );
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(BukerBet.stage);
+            Scene scene = new Scene(page);
+            dialogStage.setScene(scene);
+            dialogStage.setResizable(false);
 
-    private void cancelBtnClick(){
-        this.inputPane.setVisible(false);
-        clearInputFields();
-        refreshTableContent();
-        isEdit = false;
-        this.mainPane.setVisible(true);
-    }
+            MatchDialogController controller = loader.getController();
+            controller.setDialogStage(dialogStage);
+            controller.setMatchData(data);
 
-    private Boolean isFilledData(){
-        return !(   eventArea.getText().isEmpty()
-                ||  datePicker.getEditor().getText().isEmpty()
-                ||  timeField.getText().isEmpty()
-                ||  resultArea.getText().isEmpty());
+            dialogStage.showAndWait();
+
+            return controller.isOkClicked();
+        } catch (IOException e) {
+            logger.debug(e);
+            return false;
+        }
     }
 
     private void stopFiltering(){
@@ -166,6 +151,12 @@ public class BukerBetController implements Initializable{
         filteredCustomerList.setPredicate(p -> true);
         customerTableView.setItems(filteredCustomerList);
     }
+
+    private void updateMathTableView() {
+        this.matchTableView.getItems().clear();
+        this.matchTableView.getItems().addAll(connector.getData());
+    }
+
 
     private void filterCustomers(){
         filteredCustomerList.setPredicate(pred -> {
@@ -199,7 +190,6 @@ public class BukerBetController implements Initializable{
         });
         customerTableView.setItems(filteredCustomerList);
     }
-
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -257,7 +247,7 @@ public class BukerBetController implements Initializable{
         this.customerTableView.getItems().addAll(sourceCustomerItems);
         this.filteredCustomerList = new FilteredList<>(customerTableView.getItems(), p -> true);
 
-        this.tableView.setEditable(true);
+        this.matchTableView.setEditable(true);
 
         this.idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
         this.eventCol.setCellValueFactory(new PropertyValueFactory<>("event"));
@@ -265,77 +255,35 @@ public class BukerBetController implements Initializable{
         this.timeCol.setCellValueFactory(new PropertyValueFactory<>("time"));
         this.resultCol.setCellValueFactory(new PropertyValueFactory<>("result"));
 
-        this.dateCol.setCellFactory(param -> new ComboBoxTableCell<>(new DateConverter()));
-        this.timeCol.setCellFactory(param -> new ComboBoxTableCell<>(new TimeConverter()));
-        this.datePicker.setConverter(new DateConverter());
+        Set<Map.Entry<Object, Object>> entries = this.matchTableView.getColumns().get(0).getProperties().entrySet();
+        for (Map.Entry<Object, Object> entry: entries) {
+            System.out.println(entry.getKey() +" "+ entry.getValue());
+        }
 
         refreshTableContent();
 
         this.addBut.setOnAction((ActionEvent) -> {
-            isEdit = false;
-            this.datePicker.setValue(LocalDate.now());
-            this.showInputForm();
+            if (this.showInputForm(null)) // if data added update table
+                updateMathTableView();
         });
-        this.menuItemaddMatch.setOnAction((ActionEvent) -> {
-            isEdit = false;
-            this.showInputForm();
-        });
-        this.cancelBtn.setOnAction((ActionEvent) -> this.cancelBtnClick());
 
-        this.saveBtn.setOnAction((ActionEvent) -> {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Информационное сообщение");
-            alert.initModality(Modality.WINDOW_MODAL);
-            alert.initOwner(BukerBet.stage);
-            alert.setHeaderText(null);
-
-            if (! this.isFilledData()){
-                alert.setContentText("Необходимо заполнить все поля даными !!!");
-                alert.show();
-                isEdit = false;
-                return;
-            }
-
-            OutputData data = new OutputData();
-            data.setId(editableId);
-            data.setEvent(this.eventArea.getText());
-            data.setDate(this.datePicker.getValue());
-            data.setTime(this.timeField.getText());
-            data.setResult(this.resultArea.getText());
-            if (isEdit){
-                connector.updateItem(data);
-                alert.setContentText("Даные успешно отредактированы");
-                isEdit = false;
-            } else {
-                connector.addItem(data);
-                alert.setContentText("Даные успешно доданы");
-            }
-            this.refreshTableContent();
-            this.isEdit = false;
-            this.cancelBtnClick();
-            alert.show();
+        this.menuItemAddMatch.setOnAction((ActionEvent) -> {
+            if (this.showInputForm(null)) // if data added update table
+                updateMathTableView();
         });
 
         this.editBut.setOnAction((ActionEvent) -> {
-            if (this.tableView.getSelectionModel().getSelectedIndex() < 0 )
+            if (this.matchTableView.getSelectionModel().getSelectedIndex() < 0 )
                 return;
 
-            editableId = this.idCol.getCellData(this.tableView.getSelectionModel().getSelectedIndex());
-            if (editableId < 0){
-                return;
-            }
-            this.isEdit = true;
-            this.showInputForm();
-            OutputData editionData = connector.getItem(editableId);
-            this.eventArea.setText(editionData.getEvent());
-            this.datePicker.setValue(editionData.getDate());
-            this.timeField.setText(editionData.getTime().toString());
-            this.resultArea.setText(editionData.getResult());
+            OutputData data = this.matchTableView.getItems().get(this.matchTableView.getSelectionModel().getSelectedIndex());
+            if (this.showInputForm(data)) // if data edited update table
+                updateMathTableView();
         });
 
-        this.deleteBut.setOnAction((ActionEvent) -> {
+            this.deleteBut.setOnAction((ActionEvent) -> {
 
-            OutputData deletingData = this.tableView.getSelectionModel().getSelectedItem();
+            OutputData deletingData = this.matchTableView.getSelectionModel().getSelectedItem();
 
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Внимание!!!");
@@ -404,7 +352,6 @@ public class BukerBetController implements Initializable{
             // set predicate and filter customers
             filterCustomers();
         });
-
 
         btnDeleteCust.setOnAction(event -> {
             int selectedIndex = customerTableView.getSelectionModel().getSelectedIndex();
@@ -485,12 +432,10 @@ public class BukerBetController implements Initializable{
                 alert.setContentText("Пользователю: " + customer.getSurname() + " "
                                     + customer.getName() + "\r\nактивировано лицензию на "
                                     + daysActivation + " (дней)");
-
             }  else {
                 alert.setContentText("активация не произведена");
             }
             alert.showAndWait();
-
         });
 
     }

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="420.0" prefWidth="600.0" styleClass="ownerPane" stylesheets="@Main.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.MatchDialogController">
+   <children>
+      <Text layoutX="48.0" layoutY="77.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Событие" />
+      <TextArea fx:id="eventArea" layoutX="118.0" layoutY="15.0" prefHeight="117.0" prefWidth="464.0" promptText="Введите престоящее событие" />
+      <Text layoutX="30.0" layoutY="167.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Дата матча" />
+      <DatePicker fx:id="datePicker" layoutX="120.0" layoutY="151.0" promptText="dd/mm/yyyy" />
+      <Text layoutX="14.0" layoutY="215.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Время начала" />
+      <TextField fx:id="timeField" layoutX="118.0" layoutY="199.0" prefHeight="25.0" prefWidth="198.0" promptText="hh:mm" />
+      <Text layoutX="41.0" layoutY="312.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Результат" />
+      <TextArea fx:id="resultArea" layoutX="115.0" layoutY="251.0" prefHeight="117.0" prefWidth="464.0" promptText="Введите прогнозируемый результат матча" />
+      <Button fx:id="saveBtn" defaultButton="true" layoutX="117.0" layoutY="378.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="146.0" text="Сохранить" />
+      <Button fx:id="cancelBtn" layoutX="308.0" layoutY="377.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="146.0" text="Отмена" />
+   </children>
+</AnchorPane>

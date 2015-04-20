@@ -26,8 +26,8 @@ public class OutputData implements Serializable {
         this.result = new SimpleStringProperty();
     }
 
-    public OutputData(Integer id, String event, LocalDate date, LocalTime time, String result) {
-        this.id = new SimpleIntegerProperty(id);
+    public OutputData(String event, LocalDate date, LocalTime time, String result) {
+//        this.id = new SimpleIntegerProperty(id);
         this.event = new SimpleStringProperty(event);
         this.date = new SimpleObjectProperty<>(date);
         this.time = new SimpleObjectProperty<>(time);

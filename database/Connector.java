@@ -204,7 +204,6 @@ public class Connector {
      * @return <code>true</code> if customer is online,
      * <code>false</code> if not are
      * */
-
     public boolean checkIsOnline(LogInData logInData){
 
         ResultSet rs = null;
