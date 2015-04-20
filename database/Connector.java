@@ -40,7 +40,6 @@ public class Connector {
         return instance;
     }
 
-
     private Connector() {
         long timeout = System.currentTimeMillis();
         try {
@@ -57,55 +56,29 @@ public class Connector {
         //System.out.println("user:" + USER + " connected to db.. " + "timeout: " + timeout + "ms");
     }
 
-    //  don`t use this method never!!!! just trust me!!
-   /* public void changeAllPassAndMacOnHash(){
-        ResultSet rs = null;
-        PreparedStatement ps = null;
-
-        String sql = "SELECT * FROM customers WHERE TRUE";
-        String sqlInsert = "UPDATE customers SET pass = '%s', mac = '%s' WHERE (cust_id = '%d')";
-        try {
-            ps = this.db.prepareStatement(sql);
-            rs = ps.executeQuery();
-
-            while (rs.next()) {
-                int id = rs.getInt("cust_id");
-                String passHash = Config.getPasswordHash(rs.getString("pass"));
-                String macHash = Config.getMacHash(rs.getString("mac"));
-                ps = this.db.prepareStatement(String.format(sqlInsert, passHash, macHash, id));
-                ps.execute();
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-*/
-    /*public List<LogInData> getOnlineClients() {
-        LogInData data;
-        ArrayList<LogInData> arr = new ArrayList<>();
-        ResultSet rs = null;
-        PreparedStatement ps = null;
-
-        String sql = "SELECT * FROM customers WHERE (is_online = TRUE)";
-        try {
-            ps = this.db.prepareStatement(sql);
-            rs = ps.executeQuery();
-            //System.out.println();
-
-            while (rs.next()){
-                data = new LogInData();
-                data.setLogin(rs.getString("login"));
-                data.setPass(rs.getString("pass"));
-                arr.add(data);
-            }
+    public void deleteCustomer(Customer cust) {
+        String query = "DELETE FROM customers WHERE (login = '%s')";
+        try (PreparedStatement ps = this.db.prepareStatement(String.format(query, cust.getLogin()))){
+            ps.execute();
         } catch (SQLException e){
-            Log.write(e);
-            //e.printStackTrace();
+            LOGGER.error(e);
         }
-        return  arr;
     }
-*/
+
+
+    public void activateCustomer(Customer cust, int daysCount) {
+        PreparedStatement ps = null;
+
+        String query = "UPDATE customers SET date_over = (current_date + interval '%s' day) " +
+                        "WHERE (login = '%s')";
+        try {
+            ps = this.db.prepareStatement(String.format(query, daysCount, cust.getLogin()));
+            ps.execute();
+        } catch (SQLException e){
+            LOGGER.error(e);
+        }
+    }
+
     public Boolean checkLoginOnExists(String login){
         ResultSet rs = null;
         PreparedStatement ps = null;
@@ -156,7 +129,9 @@ public class Connector {
                 "'" + regData.getName()     + "', " +
                 "'" + Config.getPasswordHash(regData.getPassword()) + "', " +
                 "'" + regData.getEMail()    + "', " +
-                "'" + regData.getLogin()    + "', " + " DEFAULT, null,  null, " +
+                "'" + regData.getLogin()    + "', " + " DEFAULT, " +
+                "CURRENT_DATE, " + // date registration
+                "CURRENT_DATE + INTERVAL '10' DAY, " +  // data payment 10 days for testing
                 "'" + regData.getTel()      + "', " +
                 "'" + Config.getMacHash(regData.getMac())      + "');";
         try {

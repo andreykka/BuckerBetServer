@@ -1,6 +1,5 @@
-package listenner;
+package listener;
 
-import pojo.Customer;
 import server.CustomerService;
 
 /**

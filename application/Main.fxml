@@ -10,9 +10,9 @@
    <children>
       <AnchorPane fx:id="mainPane" stylesheets="@Main.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <VBox alignment="TOP_CENTER" prefHeight="464.0" prefWidth="993.0" spacing="2.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <VBox alignment="TOP_CENTER" prefHeight="464.0" prefWidth="995.0" spacing="2.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                <children>
-                  <MenuBar fx:id="menuBar" stylesheets="@Main.css" AnchorPane.bottomAnchor="413.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <MenuBar fx:id="menuBar" prefHeight="16.0" prefWidth="995.0" stylesheets="@Main.css" AnchorPane.bottomAnchor="413.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <menus>
                         <Menu fx:id="managementMenu" mnemonicParsing="false" text="Управление">
                            <items>
@@ -29,7 +29,7 @@
                         <Insets />
                      </VBox.margin>
                   </MenuBar>
-                  <TabPane layoutY="42.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="42.0" VBox.vgrow="ALWAYS">
+                  <TabPane fx:id="tabPane" layoutY="42.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="42.0" VBox.vgrow="ALWAYS">
                     <tabs>
                       <Tab text="Матчи">
                         <content>
@@ -46,11 +46,11 @@
                                                 <TableColumn fx:id="resultCol" prefWidth="261.0" text="Прогноз" />
                                              </columns>
                                           </TableView>
-                                          <VBox alignment="CENTER" fillWidth="false" maxHeight="100.0" maxWidth="100.0" minHeight="100.0" minWidth="100.0" prefHeight="100.0" prefWidth="100.0" spacing="10.0" HBox.hgrow="ALWAYS">
+                                          <VBox alignment="CENTER" fillWidth="false" maxHeight="100.0" maxWidth="100.0" minHeight="100.0" minWidth="120.0" prefHeight="100.0" prefWidth="100.0" spacing="10.0" HBox.hgrow="ALWAYS">
                                              <children>
-                                                <Button fx:id="addBut" mnemonicParsing="false" prefHeight="30.0" prefWidth="80.0" text="Add" />
-                                                <Button fx:id="editBut" mnemonicParsing="false" prefHeight="30.0" prefWidth="80.0" text="Edit" />
-                                                <Button fx:id="deleteBut" mnemonicParsing="false" prefHeight="30.0" prefWidth="80.0" text="Delete" />
+                                                <Button fx:id="addBut" minWidth="122.0" mnemonicParsing="false" text="Добавить" />
+                                                <Button fx:id="editBut" minWidth="122.0" mnemonicParsing="false" text="Редактировать" />
+                                                <Button fx:id="deleteBut" minWidth="122.0" mnemonicParsing="false" text="Удалить" />
                                              </children>
                                              <padding>
                                                 <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
@@ -88,20 +88,24 @@
                   </TabPane>
                </children>
             </VBox>
+            <ComboBox fx:id="filterComboBox" prefHeight="25.0" prefWidth="121.0" promptText="Фильтр" visible="false" AnchorPane.rightAnchor="440.0" AnchorPane.topAnchor="39.0" />
+            <TextField fx:id="filterTextField" prefHeight="25.0" prefWidth="128.0" promptText="Текст  фильтра" visible="false" AnchorPane.rightAnchor="300.0" AnchorPane.topAnchor="39.0" />
+            <Button fx:id="btnClearFilter" disable="true" mnemonicParsing="false" prefHeight="25.0" prefWidth="30.0" text="X" visible="false" AnchorPane.rightAnchor="260.0" AnchorPane.topAnchor="39.0" />
+            <Button fx:id="btnActivate" mnemonicParsing="false" text="Активировать" visible="false" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="39.0" />
+            <Button fx:id="btnDeleteCust" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" text="Удалить" visible="false" AnchorPane.rightAnchor="135.0" AnchorPane.topAnchor="39.0" />
          </children>
       </AnchorPane>
-      <AnchorPane fx:id="inputPane" prefHeight="454.0" prefWidth="992.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <AnchorPane fx:id="inputPane" prefHeight="454.0" prefWidth="992.0" styleClass="ownerPane" stylesheets="@Main.css" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <TextArea fx:id="eventArea" layoutX="135.0" layoutY="17.0" prefHeight="117.0" prefWidth="464.0" promptText="Введите престоящее событие" />
-            <TextArea fx:id="resultArea" layoutX="132.0" layoutY="253.0" prefHeight="117.0" prefWidth="464.0" promptText="Введите прогнозируемый результат матча" />
             <Text layoutX="65.0" layoutY="79.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Событие" />
-            <Text layoutX="93.0" layoutY="311.0" strokeType="OUTSIDE" strokeWidth="0.0" />
-            <DatePicker fx:id="datePicker" layoutX="137.0" layoutY="153.0" promptText="dd/mm/yyyy" />
+            <TextArea fx:id="eventArea" layoutX="135.0" layoutY="17.0" prefHeight="117.0" prefWidth="464.0" promptText="Введите престоящее событие" />
             <Text layoutX="47.0" layoutY="169.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Дата матча" />
+            <DatePicker fx:id="datePicker" layoutX="137.0" layoutY="153.0" promptText="dd/mm/yyyy" />
             <Text layoutX="31.0" layoutY="217.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Время начала" />
             <TextField fx:id="timeField" layoutX="135.0" layoutY="201.0" prefHeight="25.0" prefWidth="198.0" promptText="hh:mm" />
             <Text layoutX="58.0" layoutY="314.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Результат" />
-            <Button fx:id="saveBtn" layoutX="136.0" layoutY="404.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="146.0" text="Сохранить" />
+            <TextArea fx:id="resultArea" layoutX="132.0" layoutY="253.0" prefHeight="117.0" prefWidth="464.0" promptText="Введите прогнозируемый результат матча" />
+            <Button fx:id="saveBtn" defaultButton="true" layoutX="136.0" layoutY="404.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="146.0" text="Сохранить" />
             <Button fx:id="cancelBtn" layoutX="327.0" layoutY="403.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="146.0" text="Отмена" />
          </children>
       </AnchorPane>

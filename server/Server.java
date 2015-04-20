@@ -1,8 +1,10 @@
 package server;
 
+import application.BukerBet;
+import javafx.scene.control.Alert;
+import javafx.stage.Modality;
 import org.apache.log4j.Logger;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.net.ServerSocket;
 
@@ -32,7 +34,6 @@ public class Server implements Runnable{
             LOGGER.info("Server started! ");
         } catch (IOException e) {
             LOGGER.info("This PORT " + PORT + " is unavailable \r\n" + e.getMessage());
-            JOptionPane.showMessageDialog(null, "Порт не доступен\r\nСервер не запущен. \r\nПопробуйте еще раз");
             this.stopServer();
         }
     }

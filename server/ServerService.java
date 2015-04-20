@@ -1,6 +1,8 @@
 package server;
 
+import application.BukerBet;
 import database.Connector;
+import javafx.scene.control.Alert;
 import org.apache.log4j.Logger;
 
 import java.util.List;
@@ -38,6 +40,13 @@ public class ServerService {
             serverFuture.get();
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
+            Alert al = new Alert(Alert.AlertType.ERROR);
+            al.setTitle("Внимание!!");
+            al.setHeaderText("Не удалось запустить сервер");
+            al.setContentText("Порт не доступен. \r\nВозможно он занят другой программой");
+            al.showAndWait();
+            BukerBet.stage.close();
+            return;
         }
         System.out.println("server started !!!!!!");
         // run accepting client
