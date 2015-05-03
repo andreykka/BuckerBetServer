@@ -50,7 +50,6 @@ public class CustomerService implements Runnable {
             this.lin     = new ObjectInputStream (this.connectionSocket.getInputStream());
         } catch (IOException e) {
             LOGGER.error("something wrong in create customer");
-            return;
         }
     }
 
@@ -73,7 +72,7 @@ public class CustomerService implements Runnable {
                 task = FlagsEnum.valueOf(((FlagsEnum) object).name());
                 LOGGER.info("read " + task.name() + "  from client");
             } else {
-                LOGGER.info("object is not a FlagsEnum object");
+                LOGGER.error("object is not a FlagsEnum object");
             }
             assert task != null; // 100 task != null else ERROR
             // check request
@@ -143,8 +142,8 @@ public class CustomerService implements Runnable {
                 throw new Error("Object is not a LoginData ERROR");
             }
 
-            boolean isRegiter = connect.checkIsRegister(logInData);
-            if (!isRegiter) {
+            boolean isRegister = connect.checkIsRegister(logInData);
+            if (!isRegister) {
                 LOGGER.info("user '" + logInData.getLogin() + "' is not register in system");
                 out.writeBoolean(false);
                 out.flush();
@@ -158,7 +157,7 @@ public class CustomerService implements Runnable {
                 LOGGER.info("user '" + logInData.getLogin() + "' is already ONLINE");
                 out.writeBoolean(false);
                 out.flush();
-                out.writeUTF("Пользователь " + logInData.getLogin() + " уже вошел в систему");
+                out.writeUTF("Пользователь " + logInData.getLogin() + "\r\nуже вошел в систему");
                 out.flush();
                 return;
             }
@@ -168,7 +167,7 @@ public class CustomerService implements Runnable {
                 LOGGER.info("mac '" + logInData.getMac() + "' is not " + logInData.getMac() + " PC");
                 out.writeBoolean(false);
                 out.flush();
-                out.writeUTF("Логин " + logInData.getLogin() + " привязан к другому комп’ютеру");
+                out.writeUTF("Логин " + logInData.getLogin() + " \r\nпривязан к другому комп’ютеру");
                 out.flush();
                 return;
             }
@@ -179,7 +178,7 @@ public class CustomerService implements Runnable {
                 out.writeBoolean(false);
                 out.flush();
                 out.writeUTF("Невозможно войти в систему." +
-                        "\r\nВы не оплатили лицензию, или срок действия истек!!");
+                        "\r\nВы не оплатили лицензию, \r\nили срок действия истек!!");
                 out.flush();
                 return;
             }
@@ -281,7 +280,7 @@ public class CustomerService implements Runnable {
                 // "' is already register in system");
                 out.writeBoolean(false);
                 out.flush();
-                out.writeUTF("Пользователь с таким Логином уже зарегистрирован в системе");
+                out.writeUTF("Пользователь с таким Логином \r\nуже зарегистрирован в системе");
                 out.flush();
                 return;
             }
@@ -292,7 +291,7 @@ public class CustomerService implements Runnable {
                 // is already register in system");
                 out.writeBoolean(false);
                 out.flush();
-                out.writeUTF("Пользователь с таким Email уже зарегистрирован в системе");
+                out.writeUTF("Пользователь с таким Email \r\nуже зарегистрирован в системе");
                 out.flush();
                 return;
             }
@@ -302,15 +301,20 @@ public class CustomerService implements Runnable {
                 //System.out.println("USER NOT REGISTER!! SOME ERROR!!!!!!");
                 out.writeBoolean(false);
                 out.flush();
-                out.writeUTF("Попытка зарегистрироваться не удалась (((");
+                out.writeUTF("Попытка зарегистрироваться не удалась");
                 out.flush();
                 return;
             }
 
             out.writeBoolean(true);
             out.flush();
-            out.writeUTF("Поздравляем! Вы успешно загеристрированы");
+            out.writeUTF("Поздравляем! \r\nВы успешно загеристрированы");
             out.flush();
+
+
+            LogInData logInData = new LogInData(regData.getLogin(), regData.getPassword(), regData.getMac());
+            listeners.stream().forEach(con -> con.customerRegister(connect.getCustomerByLoginData(logInData)));
+            LOGGER.info("E N D");
 
         } catch (IOException | ClassNotFoundException e) {
             LOGGER.error(e);
@@ -337,7 +341,7 @@ public class CustomerService implements Runnable {
 
             // якщо не можливо відправити чи отримати дані від клієнта
             // генеруємо помилку
-            boolean executionResult = new TaskTimerScheduler(() -> {
+            return new TaskTimerScheduler(() -> {
                 try {
                     Object obj = lin.readObject();
                     if (obj == null || !(obj instanceof Boolean))
@@ -347,9 +351,6 @@ public class CustomerService implements Runnable {
                 }
                 LOGGER.info("read info success");
             }, 300).executeTask();
-
-            return executionResult;
-
         } catch (IOException e) {
             LOGGER.error(e);
             return false;

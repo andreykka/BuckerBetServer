@@ -4,7 +4,7 @@
 <?import javafx.scene.text.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="420.0" prefWidth="600.0" styleClass="ownerPane" stylesheets="@Main.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.MatchDialogController">
+<AnchorPane prefHeight="420.0" prefWidth="600.0" styleClass="ownerPane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.MatchDialogController">
    <children>
       <Text layoutX="48.0" layoutY="77.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Событие" />
       <TextArea fx:id="eventArea" layoutX="118.0" layoutY="15.0" prefHeight="117.0" prefWidth="464.0" promptText="Введите престоящее событие" />

@@ -22,6 +22,7 @@ import java.util.Optional;
 public class BukerBet extends Application {
 
     public static Stage stage;
+    public static final String STYLE_PATH = "/application/view/Main.css";
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -30,7 +31,7 @@ public class BukerBet extends Application {
         Scene scene = new Scene(root, primaryStage.getWidth(), primaryStage.getHeight());
         primaryStage.setTitle("BukerBet");
         primaryStage.setScene(scene);
-//        primaryStage.getScene().getStylesheets().add("/application/view/Main.css");
+        primaryStage.getScene().getStylesheets().add(STYLE_PATH);
         stage = primaryStage;
         primaryStage.show();
 

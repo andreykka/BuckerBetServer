@@ -131,7 +131,8 @@ public class Connector {
                 "'" + regData.getEMail()    + "', " +
                 "'" + regData.getLogin()    + "', " + " DEFAULT, " +
                 "CURRENT_DATE, " + // date registration
-                "CURRENT_DATE + INTERVAL '10' DAY, " +  // data payment 10 days for testing
+//                "CURRENT_DATE + INTERVAL '10' DAY, " +  // data payment 10 days for testing
+                "CURRENT_DATE, " +
                 "'" + regData.getTel()      + "', " +
                 "'" + Config.getMacHash(regData.getMac())      + "');";
         try {

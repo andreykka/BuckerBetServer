@@ -10,5 +10,6 @@ public interface ICustomerListener {
 
     public void customerLogin(Customer cust);
     public void customerLogout(Customer cust);
+    public void customerRegister(Customer cust);
 
 }

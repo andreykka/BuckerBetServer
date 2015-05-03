@@ -61,6 +61,11 @@ public class BukerBetController implements Initializable{
                 }
             }
         }
+
+        @Override
+        public void customerRegister(Customer cust) {
+            updateCustomers();
+        }
     }
 
     @FXML private TabPane tabPane;
@@ -105,11 +110,6 @@ public class BukerBetController implements Initializable{
     private Connector           connector   = Connector.getInstance();
     private ServerService       serverService = ServerService.getInstance();
 
-    private void refreshTableContent(){
-        this.matchTableView.getItems().clear();
-        this.matchTableView.getItems().addAll(this.connector.getData());
-    }
-
     /**
      * Show form input match data
      * @param  data data to editing or null
@@ -127,9 +127,9 @@ public class BukerBetController implements Initializable{
             dialogStage.initModality(Modality.WINDOW_MODAL);
             dialogStage.initOwner(BukerBet.stage);
             Scene scene = new Scene(page);
+            scene.getStylesheets().add(BukerBet.STYLE_PATH);
             dialogStage.setScene(scene);
             dialogStage.setResizable(false);
-
             MatchDialogController controller = loader.getController();
             controller.setDialogStage(dialogStage);
             controller.setMatchData(data);
@@ -152,11 +152,17 @@ public class BukerBetController implements Initializable{
         customerTableView.setItems(filteredCustomerList);
     }
 
-    private void updateMathTableView() {
+    private void updateMatchesTableView() {
         this.matchTableView.getItems().clear();
         this.matchTableView.getItems().addAll(connector.getData());
     }
 
+    private void updateCustomers(){
+        this.sourceCustomerItems.clear();
+        this.sourceCustomerItems.addAll(connector.getAllCustomers());
+        this.customerTableView.getItems().clear();
+        this.customerTableView.getItems().addAll(sourceCustomerItems);
+    }
 
     private void filterCustomers(){
         filteredCustomerList.setPredicate(pred -> {
@@ -194,6 +200,7 @@ public class BukerBetController implements Initializable{
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
+        // type`s of filtering
         filterComboBox.getItems().addAll("Фамилия", "Имя",  "Логин", "Email");
 
         // register listener in CustomerService class
@@ -255,21 +262,16 @@ public class BukerBetController implements Initializable{
         this.timeCol.setCellValueFactory(new PropertyValueFactory<>("time"));
         this.resultCol.setCellValueFactory(new PropertyValueFactory<>("result"));
 
-        Set<Map.Entry<Object, Object>> entries = this.matchTableView.getColumns().get(0).getProperties().entrySet();
-        for (Map.Entry<Object, Object> entry: entries) {
-            System.out.println(entry.getKey() +" "+ entry.getValue());
-        }
-
-        refreshTableContent();
+        updateMatchesTableView();
 
         this.addBut.setOnAction((ActionEvent) -> {
             if (this.showInputForm(null)) // if data added update table
-                updateMathTableView();
+                updateMatchesTableView();
         });
 
         this.menuItemAddMatch.setOnAction((ActionEvent) -> {
             if (this.showInputForm(null)) // if data added update table
-                updateMathTableView();
+                updateMatchesTableView();
         });
 
         this.editBut.setOnAction((ActionEvent) -> {
@@ -278,7 +280,7 @@ public class BukerBetController implements Initializable{
 
             OutputData data = this.matchTableView.getItems().get(this.matchTableView.getSelectionModel().getSelectedIndex());
             if (this.showInputForm(data)) // if data edited update table
-                updateMathTableView();
+                updateMatchesTableView();
         });
 
             this.deleteBut.setOnAction((ActionEvent) -> {
@@ -306,7 +308,7 @@ public class BukerBetController implements Initializable{
 
             if (buttonType.get().getButtonData().isDefaultButton()){
                 this.connector.removeItem(deletingData);
-                this.refreshTableContent();
+                updateMatchesTableView();
             }
 
         });
