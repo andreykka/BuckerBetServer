@@ -67,6 +67,7 @@ public class CustomerService implements Runnable {
                 this.logOut();
             }
             object = in.readObject();
+            LOGGER.info("something accept from client");
 
             if (object instanceof FlagsEnum) {
                 task = FlagsEnum.valueOf(((FlagsEnum) object).name());
@@ -192,7 +193,7 @@ public class CustomerService implements Runnable {
             for (ICustomerListener l: listeners) {
                 l.customerLogin(customer);
             }
-
+            LOGGER.info("E N D LOGIN");
         } catch (IOException | ClassNotFoundException e) {
             LOGGER.error(e);
         }
@@ -264,6 +265,7 @@ public class CustomerService implements Runnable {
         RegistrationData regData = new RegistrationData();
         try {
             obj = in.readObject();
+            LOGGER.info("read json registration object");
             JSONObject object  = (JSONObject) obj;
 
             regData.setName(    ((String) object.get("name")).trim());
@@ -276,33 +278,36 @@ public class CustomerService implements Runnable {
 
             Boolean isLoginExist = this.connect.checkLoginOnExists(regData.getLogin());
             if (isLoginExist) {
-                //System.out.println("user with login '" + regData.getLogin() +
-                // "' is already register in system");
+                LOGGER.info("user with login '" + regData.getLogin() +
+                        "' is already register in system");
                 out.writeBoolean(false);
                 out.flush();
                 out.writeUTF("Пользователь с таким Логином \r\nуже зарегистрирован в системе");
                 out.flush();
+                LOGGER.info("Пользователь с таким Логином \r\nуже зарегистрирован в системе");
+
                 return;
             }
 
             Boolean isEmailExist = this.connect.checkEMailOnExists(regData.getEMail());
             if (isEmailExist) {
-                //System.out.println("user with email '" + regData.getEMail() + "'
-                // is already register in system");
+                LOGGER.info("user with email '" + regData.getEMail() + "'is already register in system");
                 out.writeBoolean(false);
                 out.flush();
                 out.writeUTF("Пользователь с таким Email \r\nуже зарегистрирован в системе");
                 out.flush();
+                LOGGER.info("Пользователь с таким Email \r\nуже зарегистрирован в системе");
                 return;
             }
 
             Boolean result = this.connect.registerCustomer(regData);
-            if (!result){
-                //System.out.println("USER NOT REGISTER!! SOME ERROR!!!!!!");
+            if (!result) {
+                LOGGER.info("USER NOT REGISTER!! SOME ERROR!!!!!!");
                 out.writeBoolean(false);
                 out.flush();
                 out.writeUTF("Попытка зарегистрироваться не удалась");
                 out.flush();
+                LOGGER.info("Попытка зарегистрироваться не удалась");
                 return;
             }
 
@@ -310,10 +315,17 @@ public class CustomerService implements Runnable {
             out.flush();
             out.writeUTF("Поздравляем! \r\nВы успешно загеристрированы");
             out.flush();
-
+            LOGGER.info("Поздравляем! \r\nВы успешно загеристрированы");
 
             LogInData logInData = new LogInData(regData.getLogin(), regData.getPassword(), regData.getMac());
-            listeners.stream().forEach(con -> con.customerRegister(connect.getCustomerByLoginData(logInData)));
+            LOGGER.info("before listeners");
+
+            for (ICustomerListener l: listeners) {
+                l.customerRegister(connect.getCustomerByLoginData(logInData));
+            }
+
+//            listeners.stream().forEach(con -> con.customerRegister(connect.getCustomerByLoginData(logInData)));
+
             LOGGER.info("E N D");
 
         } catch (IOException | ClassNotFoundException e) {

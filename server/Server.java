@@ -1,8 +1,5 @@
 package server;
 
-import application.BukerBet;
-import javafx.scene.control.Alert;
-import javafx.stage.Modality;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;

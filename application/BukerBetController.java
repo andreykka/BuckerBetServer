@@ -53,6 +53,7 @@ public class BukerBetController implements Initializable{
 
         @Override
         public void customerLogout(Customer cust) {
+
             for(Customer c: customerTableView.getItems()) {
                 if (c.equals(cust)) {
                     c.setStatus(false);
@@ -64,7 +65,10 @@ public class BukerBetController implements Initializable{
 
         @Override
         public void customerRegister(Customer cust) {
+            logger.info("BukerBetController begin ");
             updateCustomers();
+            logger.info("BukerBetController end ");
+
         }
     }
 

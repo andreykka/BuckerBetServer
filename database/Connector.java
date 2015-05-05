@@ -195,7 +195,7 @@ public class Connector {
         } catch (SQLException e) {
             LOGGER.error(e);
         }
-
+        System.out.println("return customer");
         return customer;
     }
 
